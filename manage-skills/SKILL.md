@@ -126,6 +126,13 @@ Manage Skills Progress:
 | 提交到远程 Git 仓库 | 本地 commit 成功后执行 `git push`（需用户选中且本地已 commit） |
 | 同步到 Cursor 全局目录 | `Copy-Item -Recurse -Force` 将 `<skill-name>` 复制到 `C:\Users\Bingo\.cursor\skills\<skill-name>\` |
 
+**Commit Message 规范**（用户选中 Git 提交时 **必须** 遵守）：
+
+1. **Subject**（第一行）：conventional commits 格式，如 `feat(manage-skills): ...` / `fix(bugfix): ...`
+2. **Body**（空一行后）：2～4 句说明**改了什么、为什么改**，覆盖本次所有落库文件
+3. 在对话中**展示完整 commit message**（subject + body），再执行 commit
+4. push 成功后，在对话中告知推送的 **commit hash、分支、远程仓库**
+
 规则：
 
 - 用户未选中的项 **不执行**
@@ -148,6 +155,19 @@ Manage Skills Progress:
 - **落库路径**：`D:\Program\Skills\<skill-name>\`
 - **已执行**：[本地 commit / 远程 push / 全局同步 — 列出实际执行的项，或「无」]
 
+### 改动总结
+
+[必填：3～5 条 bullet，说明本次具体改了什么，便于用户快速回顾]
+
+- 变更点 1：...
+- 变更点 2：...
+
+### Git 记录（如有提交）
+
+- **Commit**：`<hash>` — `<subject>`
+- **Body 摘要**：...
+- **Push**：`<remote>/<branch>`（或「未推送」）
+
 > **提醒**：Skills 已更新。请 **重启 Cursor 或重新打开项目**，新的 skill 才会生效。
 ```
 
@@ -161,3 +181,5 @@ Manage Skills Progress:
 - **不碰内置目录**：禁止写入 `C:\Users\Bingo\.cursor\skills-cursor\`
 - **README 同步**：新增 skill 必须更新 README；更新 skill 若触发方式/用途变化，同步改 README 表格
 - **AskQuestion 优先**：确认落库、后续 Git/同步均用对话内弹框，不另开纯追问对话
+- **改动总结必填**：Phase 7 必须输出改动总结，不可仅说「已更新」
+- **Commit 有内容**：Git 提交禁止空 message 或仅写「update」；subject 与 body 均需有意义
