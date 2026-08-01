@@ -38,9 +38,9 @@ Manage Skills Progress:
 - [ ] Phase 1: 需求拆解
 - [ ] Phase 2: 定位目标 Skill
 - [ ] Phase 3: 生成草案并对比差异
-- [ ] Phase 4: 用户确认是否落库
+- [ ] Phase 4: 确认落库与后续操作（唯一 AskQuestion）
 - [ ] Phase 5: 写入仓库
-- [ ] Phase 6: 后续操作（Git / 全局同步）
+- [ ] Phase 6: 执行 Git / 全局同步
 - [ ] Phase 7: 完成提醒
 ```
 
@@ -90,21 +90,30 @@ Manage Skills Progress:
 
 ---
 
-### Phase 4: 用户确认是否落库
+### Phase 4: 确认落库与后续操作（唯一 AskQuestion）
 
-用 **AskQuestion** 弹框，选项示例：
+展示 diff 后，**只弹一次** **AskQuestion**（`allow_multiple: true`），选项如下：
 
-- **是，按预览内容落库**
-- **否，我再改改需求**（回到 Phase 1）
-- **取消，不保存**
+| 选项 | 行为 |
+|------|------|
+| 提交到本地 Git 仓库 | 落库 + `git add` + `git commit` |
+| 提交到远程 Git 仓库 | 落库 + commit + `git push` |
+| 同步到 Cursor 全局目录 | 落库 + 复制到 `C:\Users\Bingo\.cursor\skills\` |
+| **取消** | **不落库，流程结束** |
 
-仅当用户选择「是」时进入 Phase 5。选「否」则根据反馈修订草案，回到 Phase 3 重新展示 diff。
+规则：
+
+- 选「**取消**」或**未选任何项** → 不写入磁盘，输出「已取消，未落库」后结束
+- 选其他项（可多选，不含取消）→ 进入 Phase 5 落库，再 Phase 6 执行选中项
+- **禁止**在此之后再次弹框确认落库或后续操作
+
+**输出**：用户选择项列表（或「取消」）。
 
 ---
 
 ### Phase 5: 写入仓库
 
-用户确认后执行：
+用户 Phase 4 选择非取消项后执行：
 
 1. 写入 `D:\Program\Skills\<skill-name>\SKILL.md`（及 `reference.md`、`scripts/` 等附属文件）
 2. **新增 skill** 时，同步更新 `D:\Program\Skills\README.md`：
@@ -116,15 +125,20 @@ Manage Skills Progress:
 
 ---
 
-### Phase 6: 后续操作（Git / 全局同步）
+### Phase 6: 执行 Git / 全局同步
 
-落库成功后，用 **AskQuestion**（`allow_multiple: true`）一次性提供三项，用户可多选：
+按 Phase 4 用户选择逐项执行（不再 AskQuestion）：
 
 | 选项 | 动作 |
 |------|------|
 | 提交到本地 Git 仓库 | 在 `D:\Program\Skills` 执行 `git add` + `git commit`（遵循仓库既有 commit 风格） |
-| 提交到远程 Git 仓库 | 本地 commit 成功后执行 `git push`（需用户选中且本地已 commit） |
+| 提交到远程 Git 仓库 | 本地 commit 成功后执行 `git push`（需用户选中；若未选本地 commit 则先 commit 再 push） |
 | 同步到 Cursor 全局目录 | `Copy-Item -Recurse -Force` 将 `<skill-name>` 复制到 `C:\Users\Bingo\.cursor\skills\<skill-name>\` |
+
+- 用户未选中的项 **不执行**
+- Git 操作仅在 `D:\Program\Skills` 为 git 仓库时进行；若无 `.git`，告知用户并跳过 Git 选项
+- `git push` 失败时报告原因，不 force push
+- 同步全局目录时覆盖同名 skill
 
 **Commit Message 规范**（用户选中 Git 提交时 **必须** 遵守）：
 
@@ -132,13 +146,6 @@ Manage Skills Progress:
 2. **Body**（空一行后）：2～4 句说明**改了什么、为什么改**，覆盖本次所有落库文件
 3. 在对话中**展示完整 commit message**（subject + body），再执行 commit
 4. push 成功后，在对话中告知推送的 **commit hash、分支、远程仓库**
-
-规则：
-
-- 用户未选中的项 **不执行**
-- Git 操作仅在 `D:\Program\Skills` 为 git 仓库时进行；若无 `.git`，告知用户并跳过 Git 选项
-- `git push` 失败时报告原因，不 force push
-- 同步全局目录时覆盖同名 skill
 
 **输出**：每项操作的结果（成功 / 跳过 / 失败原因）。
 
@@ -176,10 +183,11 @@ Manage Skills Progress:
 ## 注意事项
 
 - **先 diff 后落库**：Phase 4 确认前不得修改 `D:\Program\Skills` 下任何文件
+- **只问一次**：落库与 Git/同步合并在 Phase 4 唯一 AskQuestion，禁止二次确认
 - **最小改动**：更新时只改与需求相关的部分，不顺手重写无关章节
 - **verbatim 优先**：用户指定的触发词、流程措辞原样写入，不擅自改写
 - **不碰内置目录**：禁止写入 `C:\Users\Bingo\.cursor\skills-cursor\`
 - **README 同步**：新增 skill 必须更新 README；更新 skill 若触发方式/用途变化，同步改 README 表格
-- **AskQuestion 优先**：确认落库、后续 Git/同步均用对话内弹框，不另开纯追问对话
+- **AskQuestion 优先**：用户决策用对话内弹框，不另开纯追问对话
 - **改动总结必填**：Phase 7 必须输出改动总结，不可仅说「已更新」
 - **Commit 有内容**：Git 提交禁止空 message 或仅写「update」；subject 与 body 均需有意义
