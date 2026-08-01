@@ -2,8 +2,9 @@
 name: manage-skills
 description: >-
   在个人 Skills 仓库中新增或更新 Agent Skill：需求拆解、差异对比、确认后落库、可选 Git 提交与全局同步。
-  Use when the user says "更新skills", "新增skills", "更新 skill", "新增 skill",
-  explicitly selects this skill, or asks to create/modify skills in D:\Program\Skills.
+  Use when the user says "/manage-skills", "更新skills", "新增skills", "更新 skill",
+  "新增 skill", explicitly selects this skill, or asks to create/modify skills in
+  D:\Program\Skills.
 ---
 
 # Manage Skills — 新增与更新
@@ -25,9 +26,34 @@ description: >-
 
 以下任一情况立即启用本 skill：
 
+- 用户消息以 **`/manage-skills`** 开头（推荐写法，见下方「斜杠指令格式」）
 - 用户说「更新skills」「新增skills」（含大小写、空格变体）
 - 用户说「更新 skill」「新增 skill」「修改 skill」
 - 用户显式选中或 @ 本 skill
+
+## 斜杠指令格式
+
+消息以 `/manage-skills` 开头时：
+
+1. **只启用本 skill**（manage-skills 流程），**不要**加载或执行消息中提到的其他 skill
+2. 后续出现的 **目标 skill 标记** 均表示「要新增/更新的 skill 名称」，**不是** 执行该 skill：
+   - `【bugfix】`、`【manage-skills】` 等中文方括号包裹的名称
+   - `/bugfix`、`/manage-skills` 等斜杠形式（**不含**消息开头用于触发本 skill 的 `/manage-skills`）
+3. 方括号或斜杠标记**之后**的正文为**变更需求**，进入 Phase 1 拆解
+
+**示例**：
+
+```
+/manage-skills 【bugfix】commit subject 要中英文双语
+```
+
+→ 更新 `bugfix` skill，**不**运行 bugfix 修复流程
+
+```
+/manage-skills /manage-skills 斜杠指令解析规则
+```
+
+→ 更新 `manage-skills` skill 自身
 
 ---
 
@@ -54,6 +80,8 @@ Manage Skills Progress:
 2. **目标 skill**：名称（kebab-case）、用途、触发条件
 3. **变更内容**：要增删改的具体章节、流程、输出格式
 4. **用户原文**：若用户提供固定措辞，标记为 **verbatim**，写入时原样保留
+
+若消息以 `/manage-skills` 开头，从正文中解析**目标 skill 名称**（`【xxx】` 或 `/xxx`）与**变更需求**，**勿**将内嵌的 skill 名称当作执行指令。
 
 信息不足时，用 **AskQuestion** 弹框补齐（例如：新增还是更新？目标 skill 名称？）。
 
@@ -96,6 +124,7 @@ Manage Skills Progress:
 
 | 选项 | 行为 |
 |------|------|
+| **全选** | 等同于选中下方三项（本地 commit + 远程 push + 全局同步） |
 | 提交到本地 Git 仓库 | 落库 + `git add` + `git commit` |
 | 提交到远程 Git 仓库 | 落库 + commit + `git push` |
 | 同步到 Cursor 全局目录 | 落库 + 复制到 `C:\Users\Bingo\.cursor\skills\` |
@@ -103,11 +132,13 @@ Manage Skills Progress:
 
 规则：
 
+- 选「**全选**」→ 展开为三项可执行项（本地 commit、远程 push、全局同步；不含取消）
+- 「全选」与「取消」互斥；Agent 解析选项时若含全选，自动展开为上述三项
 - 选「**取消**」或**未选任何项** → 不写入磁盘，输出「已取消，未落库」后结束
 - 选其他项（可多选，不含取消）→ 进入 Phase 5 落库，再 Phase 6 执行选中项
 - **禁止**在此之后再次弹框确认落库或后续操作
 
-**输出**：用户选择项列表（或「取消」）。
+**输出**：用户选择项列表（或「取消」；含全选时列出展开后的项）。
 
 ---
 
@@ -122,6 +153,12 @@ Manage Skills Progress:
 3. 写入完成后说明已落库的文件列表
 
 **输出**：已写入路径列表。
+
+**权限集中申请**：Phase 4 确认后，落库、Git、全局同步可能触发写盘 / 网络等授权。须：
+
+1. **事先说明**：在对话中列出将写入的路径与将执行的命令，提示用户「接下来请集中授权一次」
+2. **合并执行**：尽量在**单次 Shell 会话**中连续完成 Phase 5 写盘与 Phase 6 全部选中项（写文件 → commit → push → Copy-Item），避免拆成多轮工具调用导致重复弹窗
+3. **权限被拒**：明确报告未完成项及原因，不 silent 跳过
 
 ---
 
@@ -182,8 +219,11 @@ Manage Skills Progress:
 
 ## 注意事项
 
+- **斜杠指令优先**：`/manage-skills` 后续出现的 `【skill】` / `/skill` 仅为**更新目标**，禁止当作 skill 执行指令
 - **先 diff 后落库**：Phase 4 确认前不得修改 `D:\Program\Skills` 下任何文件
 - **只问一次**：落库与 Git/同步合并在 Phase 4 唯一 AskQuestion，禁止二次确认
+- **全选选项**：`allow_multiple: true` 的 AskQuestion 须提供「全选」；选全选 = 选除「取消」外全部可执行项
+- **权限一次申请**：Phase 4 确认后合并执行写盘 / Git / 同步，减少重复权限弹窗
 - **最小改动**：更新时只改与需求相关的部分，不顺手重写无关章节
 - **verbatim 优先**：用户指定的触发词、流程措辞原样写入，不擅自改写
 - **不碰内置目录**：禁止写入 `C:\Users\Bingo\.cursor\skills-cursor\`
