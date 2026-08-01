@@ -168,15 +168,19 @@ Bugfix Progress:
 
 ### Git Commit Subject
 ```
-<type>(<scope>): <简短描述>
+<type>(<scope>): <English description>
+<type>(<scope>): <中文描述>
 ```
 ```
 
 **Commit Subject 规范**：
 - 使用 conventional commits：`fix` 为主类型
 - `scope` 填主要影响模块（如 `backend`、`frontend`、`api`）
-- 描述用英文或中文均可，保持与团队习惯一致，50 字以内
-- 示例：`fix(backend): correct null check in knowledge retrieval`
+- **同时给出英文与中文两个版本**，`type` 与 `scope` 保持一致，仅描述部分分别撰写
+- 每条 50 字以内
+- 示例：
+  - EN: `fix(backend): correct null check in knowledge retrieval`
+  - CN: `fix(backend): 修正知识检索中的空值检查`
 
 ---
 
