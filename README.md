@@ -30,6 +30,7 @@ Skills/
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
 | **bugfix** | [`bugfix/`](bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
+| **manage-skills** | [`manage-skills/`](manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 
 ### bugfix
 
@@ -45,6 +46,18 @@ Skills/
 8. **修复总结** — 输出 Bug 内容、原因、方法、现状及 Git commit subject
 
 信息不完整或需人工决策时，优先用 **AskQuestion** 对话内弹框追问，不另开纯追问对话。
+
+### manage-skills
+
+在 `D:\Program\Skills` 中新增或更新 Skill 的统一流程：
+
+1. **需求拆解** — 明确新增/更新、目标 skill、变更内容
+2. **定位目标** — 扫描仓库现有 skills，读取待改文件
+3. **草案与 diff** — 生成预览，**确认前不落库**
+4. **确认落库** — AskQuestion：「对比差异后，是否做当前更新」
+5. **写入仓库** — 更新 `SKILL.md` 与 `README.md`（新增时）
+6. **后续操作** — 可多选：本地 Git commit / 远程 push / 同步到 `~/.cursor/skills/`
+7. **完成提醒** — 提示重启 Cursor 或重新打开项目后生效
 
 ---
 
