@@ -31,6 +31,7 @@ Skills/
 |-------|------|------|----------|
 | **bugfix** | [`bugfix/`](bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`manage-skills/`](manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
+| **one-time-ask** | [`one-time-ask/`](one-time-ask/) | 不打断任务：所有决策用 AskQuestion 弹框，同轮继续执行 | `/one-time-ask`；或 @ 选中该 skill |
 
 ### bugfix
 
@@ -58,6 +59,15 @@ Skills/
 5. **写入仓库** — 更新 `SKILL.md` 与 `README.md`（新增时）
 6. **后续操作** — 可多选：本地 Git commit / 远程 push / 同步到 `~/.cursor/skills/`
 7. **完成提醒** — 提示重启 Cursor 或重新打开项目后生效
+
+### one-time-ask
+
+约束 Agent **交互方式**（可与 bugfix 等叠加）：
+
+1. **禁止中断式追问** — 不结束 turn 等待用户下一条消息
+2. **一律 AskQuestion** — 缺信息、选方案、要确认 → 对话内弹框
+3. **同轮续跑** — 用户在弹框中选择后，Agent 立即继续执行
+4. **上下文切换** — 无关任务插入时记录 checkpoint，处理完可 AskQuestion 是否回到原任务
 
 ---
 

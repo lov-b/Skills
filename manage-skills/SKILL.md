@@ -108,17 +108,22 @@ Manage Skills Progress:
 
 1. 基于 Phase 1 需求与 Phase 2 现有内容，生成完整的新版 `SKILL.md` 草案（及需要的附属文件）
 2. **禁止在此阶段写入磁盘**
-3. 在对话中展示 **更新前 vs 更新后** 的差异：
+3. **在对话中展示具体改动**（Phase 4 之前必填，不可省略）：
    - 更新：用 unified diff 或分段「删除/新增」对照
    - 新增：展示将创建的文件路径与完整内容预览
    - 若同时改 `README.md`，一并展示 diff
+   - **禁止**仅用「会改 xxx」等概括代替具体 diff
 4. 简要说明变更要点（3～5 条）
+
+**硬性要求**：未在对话中展示具体改动前，**不得**弹出 Phase 4 AskQuestion。
 
 **输出**：diff / 预览 + 变更摘要。
 
 ---
 
 ### Phase 4: 确认落库与后续操作（唯一 AskQuestion）
+
+**先展示 Phase 3 具体改动，再**弹 **AskQuestion**；用户须基于可见 diff 做确认，**禁止**无 diff 直接询问是否落库。
 
 展示 diff 后，**只弹一次** **AskQuestion**（`allow_multiple: true`），选项如下：
 
@@ -140,6 +145,7 @@ Manage Skills Progress:
 
 规则：
 
+- **先 diff 后确认**：Phase 3 具体改动未在对话中展示完整，不得 AskQuestion
 - 选「**全选**」→ 展开为三项可执行项（本地 commit、远程 push、全局同步；不含取消）
 - 「全选」与「取消」互斥；Agent 解析选项时若含全选，自动展开为上述三项
 - 选「**取消**」或**未选任何项** → 不写入磁盘，输出「已取消，未落库」后结束
@@ -233,7 +239,8 @@ Manage Skills Progress:
 ## 注意事项
 
 - **斜杠指令优先**：`/manage-skills` 后续出现的 `【skill】` / `/skill` 仅为**更新目标**，禁止当作 skill 执行指令
-- **先 diff 后落库**：Phase 4 确认前不得修改 `D:\Program\Skills` 下任何文件
+- **先 diff 后落库**：Phase 4 确认前不得修改 `D:\Program\Skills` 下任何文件；**确认前须在对话中展示具体改动**
+- **确认前必展示改动**：AskQuestion 前对话中须有可审查的具体 diff/预览，禁止仅口头描述
 - **只问一次**：落库与 Git/同步合并在 Phase 4 唯一 AskQuestion，禁止二次确认
 - **全选选项**：`allow_multiple: true` 的 AskQuestion 须提供「全选」；选全选 = 选除「取消」外全部可执行项
 - **权限一次申请**：授权说明并入 Phase 4 AskQuestion；确认后同一轮执行，禁止二次提醒授权
