@@ -175,6 +175,10 @@ Manage Skills Progress:
 - 用户未选中的项 **不执行**
 - Git 操作仅在 `D:\Program\Skills` 为 git 仓库时进行；若无 `.git`，告知用户并跳过 Git 选项
 - `git push` 失败时报告原因，不 force push
+- **远程不可联通**：push 前可先 `git ls-remote` 探测，或直接尝试 push 并捕获网络/连接类错误
+  - 若远程不可达：**跳过 push**，**不回滚**已成功的本地 commit
+  - 在对话与 Phase 7「Git 记录」中**明确通知**用户（含失败原因，如 timeout / could not resolve host）
+  - 本地 commit 与用户已选的其它操作（如全局同步）仍视为成功
 - 同步全局目录时覆盖同名 skill
 
 **Commit Message 规范**（用户选中 Git 提交时 **必须** 遵守）：

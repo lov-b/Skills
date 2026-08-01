@@ -182,6 +182,17 @@ Bugfix Progress:
   - EN: `fix(backend): correct null check in knowledge retrieval`
   - CN: `fix(backend): 修正知识检索中的空值检查`
 
+### Git 提交与推送（用户要求时）
+
+修复总结完成后，若用户要求将修复提交到 Git：
+
+1. **本地 commit** 按 Phase 8 给出的 subject 执行（用户确认后）
+2. **远程 push** 仅在用户要求且远程可联通时执行
+3. **远程不可联通**（网络错误、timeout、无法解析 host 等）：
+   - **跳过 push**，**不回滚**本地 commit
+   - 在修复总结中说明：「本地已 commit，远程 push 失败：\<原因\>」
+4. push 失败**不影响**「Bug 已修复」结论
+
 ---
 
 ## 注意事项
@@ -191,3 +202,4 @@ Bugfix Progress:
 - **多 Bug 场景**：每个 Bug 独立走完流程；全部完成后分别输出总结
 - **无法复现**：在总结中说明，给出已排查范围和后续建议
 - **需人工决策**：高风险或拿不准的修复方案，明确列出选项，优先用 **AskQuestion** 对话内弹框请用户确认后再实施；不要中断当前任务另开追问对话。
+- **Push 容错**：远程 Git 不可联通时跳过 push、保留本地 commit，必须在对话中通知用户及失败原因
