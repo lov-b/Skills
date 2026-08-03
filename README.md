@@ -1,14 +1,17 @@
 # Personal Skills
 
-本目录用于存放**个人使用的 Cursor Agent Skills**，作为统一管理与备份位置。
+本目录用于存放**个人使用的 Agent Skills**，作为统一管理与备份位置。
 
-每个 skill 是一个独立子目录，内含必需的 `SKILL.md` 文件。需要在本机生效时，复制或链接到 Cursor 全局目录：
+每个 skill 是一个独立子目录，内含必需的 `SKILL.md` 文件。仓库可以放在任意本地路径，例如：
 
 ```
-C:\Users\Bingo\.cursor\skills\<skill-name>\
+<skills-repo>/
+├── README.md
+└── <skill-name>/
+    └── SKILL.md
 ```
 
-> Cursor 默认不会自动扫描 `D:\Program\Skills`，需手动同步到上述路径，或在项目中使用 `.cursor/skills/`。
+其中 `<skills-repo>` 代表你 clone 或保存本仓库的实际路径，不要求固定为某台电脑上的指定目录。需要在本机生效时，将目标 skill 复制或链接到对应工具的全局 skills 目录。
 
 ---
 
@@ -50,14 +53,14 @@ Skills/
 
 ### manage-skills
 
-在 `D:\Program\Skills` 中新增或更新 Skill 的统一流程：
+在本地 Skills 仓库中新增或更新 Skill 的统一流程：
 
 1. **需求拆解** — 明确新增/更新、目标 skill、变更内容
 2. **定位目标** — 扫描仓库现有 skills，读取待改文件
 3. **草案与 diff** — 生成预览，**确认前不落库**
 4. **确认落库** — AskQuestion：「对比差异后，是否做当前更新」
 5. **写入仓库** — 更新 `SKILL.md` 与 `README.md`（新增时）
-6. **后续操作** — 可多选：本地 Git commit / 远程 push / 同步到 `~/.cursor/skills/`
+6. **后续操作** — 可多选：本地 Git commit / 远程 push / 同步到全局 skills 目录
 7. **完成提醒** — 提示重启 Cursor 或重新打开项目后生效
 
 ### one-time-ask
@@ -71,28 +74,71 @@ Skills/
 
 ---
 
-## 同步到 Cursor
+## 安装到全局
 
-**复制（一次性）：**
+选择要启用的 skill 后，将 `<skill-name>` 替换为实际目录名，例如 `manage-skills`、`bugfix` 或 `one-time-ask`。
 
-```powershell
-Copy-Item -Path "D:\Program\Skills\bugfix" -Destination "C:\Users\Bingo\.cursor\skills\bugfix" -Recurse -Force
+如果当前终端已经位于本仓库根目录，可以直接安装 `manage-skills`：
+
+```bash
+mkdir -p "$HOME/.codex/skills"
+ln -sfn "$(pwd)/manage-skills" "$HOME/.codex/skills/manage-skills"
 ```
 
-**符号链接（本目录为源，改一处即生效）：**
+### Codex
+
+**macOS / Linux：推荐符号链接**
+
+```bash
+mkdir -p "$HOME/.codex/skills"
+ln -sfn "<skills-repo>/<skill-name>" "$HOME/.codex/skills/<skill-name>"
+```
+
+**macOS / Linux：复制（一次性）**
+
+```bash
+mkdir -p "$HOME/.codex/skills"
+cp -R "<skills-repo>/<skill-name>" "$HOME/.codex/skills/<skill-name>"
+```
+
+### Cursor
+
+**macOS / Linux：推荐符号链接**
+
+```bash
+mkdir -p "$HOME/.cursor/skills"
+ln -sfn "<skills-repo>/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
+```
+
+**macOS / Linux：复制（一次性）**
+
+```bash
+mkdir -p "$HOME/.cursor/skills"
+cp -R "<skills-repo>/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
+```
+
+**Windows PowerShell：推荐符号链接**
 
 ```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.cursor\skills"
 New-Item -ItemType SymbolicLink `
-  -Path "C:\Users\Bingo\.cursor\skills\bugfix" `
-  -Target "D:\Program\Skills\bugfix"
+  -Path "$env:USERPROFILE\.cursor\skills\<skill-name>" `
+  -Target "<skills-repo>\<skill-name>"
 ```
 
-同步后重启 Cursor 或新开对话即可使用。
+**Windows PowerShell：复制（一次性）**
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.cursor\skills"
+Copy-Item -Path "<skills-repo>\<skill-name>" -Destination "$env:USERPROFILE\.cursor\skills\<skill-name>" -Recurse -Force
+```
+
+同步后重启对应工具，或重新打开项目 / 新开对话即可使用。
 
 ---
 
 ## 注意事项
 
-- 不要将 skill 放入 `C:\Users\Bingo\.cursor\skills-cursor\`，该目录为 Cursor 内置 skill，勿手动修改。
+- 不要将 skill 放入 Cursor 的 `skills-cursor` 内置目录，该目录由 Cursor 管理，勿手动修改。
 - 团队共享的 skill 建议放在各项目的 `.cursor/skills/` 并提交 Git；本目录适合个人跨项目通用 workflow。
 - 编辑 skill 后，若已同步到全局目录，需重新复制或确保符号链接指向最新内容。
