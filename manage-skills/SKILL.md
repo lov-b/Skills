@@ -3,7 +3,8 @@ name: manage-skills
 description: >-
   在个人 Skills 仓库中新增或更新 Agent Skill：需求拆解、差异对比、确认后落库、可选 Git 提交与全局同步。
   Use when the user says "/manage-skills", "更新skills", "新增skills", "更新 skill",
-  "新增 skill", explicitly selects this skill, or asks to create/modify skills in
+  "新增 skill", "检查skills", explicitly selects this skill, or asks to create,
+  modify, check, pull, or globally sync skills in
   a local or remote personal Skills repository.
 ---
 
@@ -32,7 +33,44 @@ description: >-
 - 用户消息以 **`/manage-skills`** 开头（推荐写法，见下方「斜杠指令格式」）
 - 用户说「更新skills」「新增skills」（含大小写、空格变体）
 - 用户说「更新 skill」「新增 skill」「修改 skill」
+- 用户说「检查skills」「检查 skills」「同步skills」「同步 skills」
 - 用户显式选中或 @ 本 skill
+
+## 检查 Skills — 拉取最新与全局配置
+
+当用户说「检查skills」或等价表达时，进入检查流程，而不是新增/更新 skill 内容流程。
+
+目标：确认当前 `<skills-repo>` 是否为远程最新；若不是最新，先从远程拉取；随后询问是否将最新 skills 配置到全局。
+
+流程：
+
+1. **定位仓库**：按 Phase 2 的 `<skills-repo>` 定位规则确认本地 Skills 仓库。
+2. **检查 Git 状态**：
+   - 执行 `git status --short`，若存在未提交改动，先报告改动文件。
+   - 未提交改动可能与远程拉取冲突时，不执行 pull；用 AskQuestion 或文本 fallback 询问用户处理方式。
+3. **检查远程最新状态**：
+   - 若存在远程仓库，执行 `git fetch` 更新远程引用。
+   - 对比 `HEAD` 与上游分支（如 `@{u}` / `origin/<branch>`）。
+   - 本地已最新：报告当前 commit、分支、远程。
+   - 本地落后：执行安全拉取，优先使用 `git pull --ff-only`；若无法 fast-forward，停止并报告原因，不自动 merge / rebase。
+4. **网络与权限**：
+   - `git fetch` / `git pull` 因网络、凭据、权限或沙箱限制失败时，按当前执行环境请求必要授权。
+   - 授权仍失败或用户拒绝时，明确报告未完成项，不 silent 跳过。
+5. **询问全局配置**：
+   - 拉取完成或确认已最新后，必须询问是否同步到全局 skills。
+   - 可选目标：Codex 全局、Cursor 全局、两者都同步、跳过同步。
+   - 可选范围：全部 skills、仅指定 skills、仅当前已存在于全局的 skills。
+   - 可选方式：macOS / Linux 优先符号链接；Windows 可复制或符号链接。
+6. **执行全局同步**：
+   - 只同步用户确认的目标、范围和方式。
+   - 不写入 Cursor / Codex 管理的内置 skills 目录。
+   - 完成后提示重启对应工具或新开会话。
+
+Codex 兼容：
+
+- 弹框/选择工具可用时，用弹框询问全局配置。
+- 弹框不可用时，用文本选项询问；用户回复前，不执行全局同步。
+- 如果用户原话已经明确说「检查skills并同步到 Codex / Cursor / 全局」，可在仓库检查和必要 pull 后，直接同步到明示目标。
 
 ## 斜杠指令格式
 
