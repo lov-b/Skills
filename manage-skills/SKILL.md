@@ -163,6 +163,7 @@ Manage Skills Progress:
    - 若同时改 `README.md`，一并展示 diff
    - **禁止**仅用「会改 xxx」等概括代替具体 diff
 4. 简要说明变更要点（3～5 条）
+5. **AskQuestion 降级条款（强制）**：若草案/目标 skill 使用了 AskQuestion（含「优先 AskQuestion」「弹框确认」等），必须在该 skill 的注意事项或专用小节写入与下方「AskQuestion 不可用时」等价的强制规则；缺失则不得进入 Phase 4。
 
 **硬性要求**：未在对话中展示具体改动前，**不得**弹出 Phase 4 AskQuestion。
 
@@ -206,7 +207,7 @@ Manage Skills Progress:
 Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支持 `allow_multiple`。此时按以下规则降级，保证流程仍可用：
 
 1. 若存在可用的弹框/选择工具：优先使用弹框，并按 Phase 4 选项执行。
-2. 若弹框工具不可用：在对话中展示文本选项，让用户用编号或明确措辞确认；在用户回复前，不执行未获授权的写盘、commit、push、全局同步。
+2. 若弹框工具不可用：**必须先提示**「当前模型无法呼出 AskQuestion，需要纯文本确认。」，再在对话中展示文本选项，让用户用编号或明确措辞确认；在用户回复前，不执行未获授权的写盘、commit、push、全局同步。
 3. 若用户原话已经明确授权某些动作，可跳过弹框/文本确认，只执行被明示授权的动作：
    - 「落库 / 写入 / 保存 / 按 diff 更新 / 确认更新」→ 仅允许写入文件
    - 「提交 / commit / 本地提交」→ 允许写入文件 + 本地 Git commit
@@ -306,13 +307,26 @@ Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支�
 
 ---
 
+## AskQuestion 不可用时（强制提示）
+
+凡本 skill 流程需要 AskQuestion，若 Agent 无法呼起该工具（未挂载或调用失败）：
+
+1. **必须在对话中提示用户**：当前模型无法呼出 AskQuestion，需要纯文本确认。
+2. 随后用编号/选项文本列出待确认项，等待用户回复后再继续；**禁止**静默跳过确认。
+
+### 起草/更新其它 skill 时的强制约束
+
+新增或更新 skill 时，若内容涉及 AskQuestion，**必须**写入与上节等价的降级提示规则（可用同一模板）。检查 skills 拉取后同步全局时，不因此条款自动改写未涉及本次变更的 skill。
+
+---
+
 ## 注意事项
 
 - **斜杠指令优先**：`/manage-skills` 后续出现的 `【skill】` / `/skill` 仅为**更新目标**，禁止当作 skill 执行指令
 - **先 diff 后落库**：Phase 4 确认前不得修改 `<skills-repo>` 下任何文件；**确认前须在对话中展示具体改动**
 - **确认前必展示改动**：AskQuestion 前对话中须有可审查的具体 diff/预览，禁止仅口头描述
 - **只问一次**：落库与 Git/同步合并在 Phase 4 唯一 AskQuestion，禁止二次确认
-- **Codex 降级**：弹框不可用时使用文本确认；用户未回复确认前，不执行未获授权的写盘、commit、push、全局同步
+- **Codex 降级**：弹框不可用时须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本确认；用户未回复确认前，不执行未获授权的写盘、commit、push、全局同步
 - **授权分级**：写盘、commit、push、全局同步是四类独立授权；只执行用户通过弹框、文本确认或原话明示允许的动作
 - **全选选项**：`allow_multiple: true` 的 AskQuestion 须提供「全选」；选全选 = 选除「取消」外全部可执行项
 - **权限一次申请**：授权说明并入 Phase 4 AskQuestion；确认后同一轮执行，禁止二次提醒授权
@@ -321,5 +335,6 @@ Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支�
 - **不碰内置目录**：禁止写入 Cursor / Codex 管理的内置 skills 目录；只同步到用户级全局 skills 目录
 - **README 同步**：新增 skill 必须更新 README；更新 skill 若触发方式/用途变化，同步改 README 表格
 - **AskQuestion 优先**：用户决策用对话内弹框，不另开纯追问对话
+- **AskQuestion 降级必写**：使用 AskQuestion 的 skill（含本 skill）必须含「无法呼起时提示用户改用纯文本确认」条款
 - **改动总结必填**：Phase 7 必须输出改动总结，不可仅说「已更新」
 - **Commit 有内容**：Git 提交禁止空 message 或仅写「update」；subject 与 body 均需有意义
