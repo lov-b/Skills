@@ -4,7 +4,8 @@ description: >-
   对 bug/需求、指定 Git 分支或指定 commit 做完整性总结：检索相关对话，
   整理单仓/多项目分支或 commit diff，并将对话中与这些 Git 范围相关的更新
   一并并入总结；文档正文优先写开发主内容，分支/提交明细作附录；
-  也支持对已有总结文档按需求从当前对话补充归位。
+  也支持对已有总结文档按需求从当前对话补充归位；安装时可配置文档仓，
+  落盘时可选 commit+push（失败须回报原因）。
   Use when the user says「总结这个对话中解决的bug」「总结刚刚完成的需求」
   「总结xx需求」「总结这些分支」「总结这些 commit」「总结分支并带上对话」
   「补充这个总结文档」「在当前对话里更新某份 conclusion」,
@@ -63,7 +64,8 @@ Auto Conclusion Progress:
 - [ ] Phase 2c: 对话×Git 关联合并（分支+对话 / 提交+对话；可与 2b 衔接）
 - [ ] Phase 2d: 已有文档补充（仅文档补充模式）
 - [ ] Phase 3: 结构化整理
-- [ ] Phase 4: 确认保存地址
+- [ ] Phase 4: 确认保存地址（可含 commit + push）
+- [ ] Phase 4b: 可选 commit + push（配置了 docsGitRepo 且用户选中时）
 - [ ] Phase 5: 写入文档并回显
 ```
 
@@ -314,16 +316,39 @@ $DEFAULT_DIR = Join-Path $env:USERPROFILE "Downloads"
 if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 ```
 
-**AskQuestion 选项**（未指定路径、文档补充、或需确认默认路径时）：
+**AskQuestion 选项**（未指定路径、文档补充、或需确认默认路径时；`allow_multiple` 可按场景开启）：
 
 | 选项 | 行为 |
 |------|------|
 | 写回原文件（仅文档补充） | 覆盖写入用户点名的总结文件 |
 | 确认保存到默认/配置路径 | 写入已解析路径（新建总结） |
 | 自定义路径 / 另存为 | 请用户提供目录或文件路径后写入 |
+| **commit + push 到配置仓库** | 落盘后对 `docsGitRepo` 执行 add/commit/push（**仅当** `config.json` 中 `docsGitRepo` 有效时展示） |
+| 仅落盘不推送 | 只写文件，不提交推送 |
 | 取消保存 | 仅在对话中展示总结/补丁，不落盘 |
 
-Codex / 无弹框时：用文本编号选项；用户回复前不写入文件。
+- 无有效 `docsGitRepo` 时**不展示**「commit + push」选项
+- 「commit + push」可与路径类选项同时选中；选「取消」则整单取消
+- Codex / 无弹框时：用文本编号选项；用户回复前不写入文件、不 commit/push
+
+---
+
+### Phase 4b: 可选 commit + push（配置了 docsGitRepo 时）
+
+当用户在 Phase 4 选了「commit + push」、且 `config.json` 含有效 `docsGitRepo` 时，在 Phase 5 写入成功后执行：
+
+1. 解析仓库根：`docsGitRepo`（须为 `git rev-parse --show-toplevel` 可识别的路径）
+2. 确认保存文件位于该仓库工作树内（或明确可接受的子路径）；否则**跳过**推送并说明原因（不回滚已写入的文件）
+3. 在该仓库内：
+   - `git add <相对仓库根的文件路径>`
+   - `git commit`：优先使用文档 §9 的 commit message（取中英任一行或双语 body）；否则 `docs(conclusion): archive {slug}`
+4. `git push`：推送到当前分支上游；无上游时尝试设置跟踪或报告需用户指定 remote/branch（不 force push）
+5. **超时 / 网络 / 认证 / non-fast-forward 等失败**：
+   - **不回滚**本地 commit 与已写入文件
+   - 在对话结果中**明确说明 push 失败原因**（如 timeout、could not resolve host、auth failed、rejected non-fast-forward）
+6. 成功则回报：本地 commit hash、远程、分支
+
+**输出**：push 成功 / 跳过（原因）/ 失败（原因）；本地 commit 是否已完成。
 
 ---
 
@@ -335,13 +360,14 @@ Codex / 无弹框时：用文本编号选项；用户回复前不写入文件。
    - `timestamp`：`YYYYMMDD-HHmmss`（本地时区）
 2. 目录不存在则创建
 3. 写入完整 Markdown（或文档补充后的全文）
-4. 对话中告知**完整绝对路径**，并再次给出 Git Commit Message（若有）便于复制
+4. 若 Phase 4 选了 commit+push → 执行 Phase 4b
+5. 对话中告知**完整绝对路径**、Git Commit Message（若有）、以及 commit/push 结果（含失败原因）
 
-**输出**：文件路径 + 是否写入成功。
+**输出**：文件路径 + 是否写入成功 +（可选）commit/push 结果。
 
 ---
 
-## 安装时配置（默认保存地址）
+## 安装时配置（默认保存地址与文档仓）
 
 **安装或首次同步到全局 skills 时**，Agent 须用 AskQuestion 询问默认文档保存目录：
 
@@ -351,27 +377,49 @@ Codex / 无弹框时：用文本编号选项；用户回复前不写入文件。
 | 自定义目录 | 用户提供路径并写入配置 |
 | 跳过（每次再问） | 不写配置；每次 Phase 4 走确认流程 |
 
+用户指定或确认 **存储目录** 后：
+
+1. 将 `defaultSaveDir` 与 `configuredAt` 写入本 skill 目录下的 `config.json`
+2. **探测 git 仓库**（保存目录本身或其父目录）：
+
+```bash
+# 从 SAVE_DIR 起向上查找仓库根
+git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
+# 若失败，对 dirname 逐级上溯直至文件系统根，再次尝试
+```
+
+3. 若发现仓库根路径：
+   - 用 AskQuestion / 文本确认：「是否将仓库 `<repo-root>` 配置到 json，便于总结落盘后 commit+push？」
+   - 用户同意 → 写入 `"docsGitRepo": "<repo-root>"`
+   - 用户拒绝或跳过 → `docsGitRepo` 置空或不写入
+4. 未发现 git 仓库 → 不询问，`docsGitRepo` 留空
+
 配置写入本 skill 目录下的 `config.json`：
 
 ```json
 {
   "defaultSaveDir": "<user-chosen-or-downloads-path>",
+  "docsGitRepo": "",
   "configuredAt": "<ISO-8601>"
 }
 ```
 
 规则：
 - 有 `config.json` 且 `defaultSaveDir` 有效 → Phase 4 优先提示该路径
+- 有有效 `docsGitRepo` → Phase 4 **必须**提供「commit + push 到配置仓库」选项
 - 无配置或路径失效 → 回退 Downloads，并 AskQuestion 确认
 - **不要**把机器特定绝对路径写进 `SKILL.md` 正文；只写入 `config.json`
+- push 失败不得 silent 跳过；必须把失败原因写进对话结果
 
 ---
 
 ## 注意事项
 
-- **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：当前模型无法呼出 AskQuestion，需要纯文本确认；再用编号选项确认保存路径/类型/项目路径等，禁止静默跳过。
+- **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：当前模型无法呼出 AskQuestion，需要纯文本确认；再用编号选项确认保存路径/类型/项目路径/是否配置 docsGitRepo 等，禁止静默跳过。
 - **正文优先**：开发主内容（需求/改动/流程/提测/git comment）在前；分支/提交明细仅附录
 - **文档补充**：须先提取原文档需求，再按需求过滤当前对话后归位写入；默认写回原文件
+- **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入 `docsGitRepo`
+- **落盘可推送**：有 `docsGitRepo` 时 Phase 4 提供 commit+push；push 超时/失败须回报原因且不回滚本地 commit
 - **分支模式 / 提交模式**：点名分支或 commit 时必须跑 Phase 2b；多项目分别整理 diff 后再做逻辑链路总结
 - **分支+对话合并 / 提交+对话合并**：必须跑 Phase 2c；改动事实以 git 为准，过程与原因以相关对话补充
 - **多仓库路径**：未给出其它项目路径时，先 AskQuestion/纯文本确认路径，禁止猜测仓库位置
