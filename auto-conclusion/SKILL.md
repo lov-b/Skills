@@ -323,7 +323,7 @@ if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 | 写回原文件（仅文档补充） | 覆盖写入用户点名的总结文件 |
 | 确认保存到默认/配置路径 | 写入已解析路径（新建总结） |
 | 自定义路径 / 另存为 | 请用户提供目录或文件路径后写入 |
-| **commit + push 到配置仓库** | 落盘后对 `docsGitRepo` 执行 add/commit/push（**仅当** `config.json` 中 `docsGitRepo` 有效时展示） |
+| **commit + push 到配置仓库** | 落盘后对 `docsGitRepo` 执行 add/commit/push（**仅当**用户级 `config.json` 中 `docsGitRepo` 有效时展示） |
 | 仅落盘不推送 | 只写文件，不提交推送 |
 | 取消保存 | 仅在对话中展示总结/补丁，不落盘 |
 
@@ -335,7 +335,7 @@ if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 
 ### Phase 4b: 可选 commit + push（配置了 docsGitRepo 时）
 
-当用户在 Phase 4 选了「commit + push」、且 `config.json` 含有效 `docsGitRepo` 时，在 Phase 5 写入成功后执行：
+当用户在 Phase 4 选了「commit + push」、且用户级 `config.json` 含有效 `docsGitRepo` 时，在 Phase 5 写入成功后执行：
 
 1. 解析仓库根：`docsGitRepo`（须为 `git rev-parse --show-toplevel` 可识别的路径）
 2. 确认保存文件位于该仓库工作树内（或明确可接受的子路径）；否则**跳过**推送并说明原因（不回滚已写入的文件）
@@ -404,9 +404,27 @@ docs(conclusion): 新增需求开发文档 — {一句话主题}
 | 自定义目录 | 用户提供路径并写入配置 |
 | 跳过（每次再问） | 不写配置；每次 Phase 4 走确认流程 |
 
+### 配置文件位置（强制：仓库外）
+
+配置写入**用户级**路径，**禁止**写入 skills 仓库或技能源码目录（软链到全局 skills 时会污染 Git 工作树）：
+
+| 系统 | 配置文件路径 |
+|------|----------------|
+| macOS / Linux | `$HOME/.config/auto-conclusion/config.json` |
+| Windows | `%APPDATA%\auto-conclusion\config.json`（或 `$env:APPDATA\auto-conclusion\config.json`） |
+
+目录不存在则创建。仓库内仅保留 `config.json.example` 作模板。
+
+**兼容迁移**：若仍存在「技能目录下的旧 `config.json`」：
+
+1. 读取旧文件
+2. 写入上述用户级路径
+3. 删除技能目录内旧文件（避免再次出现在 Git 状态里）
+4. 之后只读写用户级路径
+
 用户指定或确认 **存储目录** 后：
 
-1. 将 `defaultSaveDir` 与 `configuredAt` 写入本 skill 目录下的 `config.json`
+1. 将 `defaultSaveDir` 与 `configuredAt` 写入**用户级** `config.json`
 2. **探测 git 仓库**（保存目录本身或其父目录）：
 
 ```bash
@@ -421,7 +439,7 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
    - 用户拒绝或跳过 → `docsGitRepo` 置空或不写入
 4. 未发现 git 仓库 → 不询问，`docsGitRepo` 留空
 
-配置写入本 skill 目录下的 `config.json`：
+用户级 `config.json` 结构：
 
 ```json
 {
@@ -432,10 +450,11 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 ```
 
 规则：
-- 有 `config.json` 且 `defaultSaveDir` 有效 → Phase 4 优先提示该路径
+- 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Phase 4 优先提示该路径
 - 有有效 `docsGitRepo` → Phase 4 **必须**提供「commit + push 到配置仓库」选项
 - 无配置或路径失效 → 回退 Downloads，并 AskQuestion 确认
-- **不要**把机器特定绝对路径写进 `SKILL.md` 正文；只写入 `config.json`
+- **不要**把机器特定绝对路径写进 `SKILL.md` 或提交进 Skills 仓库；只写入**用户级** `config.json`
+- Skills 仓库须 gitignore `auto-conclusion/config.json`
 - push 失败不得 silent 跳过；必须把失败原因写进对话结果
 
 ---
@@ -443,9 +462,10 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 ## 注意事项
 
 - **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：当前模型无法呼出 AskQuestion，需要纯文本确认；再用编号选项确认保存路径/类型/项目路径/是否配置 docsGitRepo 等，禁止静默跳过。
+- **配置在仓库外**：本机 `defaultSaveDir` / `docsGitRepo` 只写 `$HOME/.config/auto-conclusion/config.json`（Windows 见上表），禁止写进技能源码目录
 - **正文优先**：开发主内容（需求/改动/流程/提测/git comment）在前；分支/提交明细仅附录
 - **文档补充**：须先提取原文档需求，再按需求过滤当前对话后归位写入；默认写回原文件
-- **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入 `docsGitRepo`
+- **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入用户级配置的 `docsGitRepo`
 - **落盘可推送**：有 `docsGitRepo` 时 Phase 4 提供 commit+push；push 超时/失败须回报原因且不回滚本地 commit
 - **文档仓 commit**：push 前的 message 须先写明「新增/补充需求开发文档」，再写文档内容摘要，禁止只贴 §9
 - **分支模式 / 提交模式**：点名分支或 commit 时必须跑 Phase 2b；多项目分别整理 diff 后再做逻辑链路总结
@@ -456,5 +476,5 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **先展示后落盘**：Phase 3 正文或补丁预览须在对话中可见，再经 Phase 4 确认后写入
 - **AskQuestion 优先**：路径确认、类型歧义、基线不明用对话内弹框，不另开纯追问
 - **命名 verbatim**：`feat-xxx-timestamp` / `bugfix-xxx-timestamp`（实现为 `feat-{slug}-{timestamp}.md`）
-- **跨平台路径**：用 `$HOME` / `%USERPROFILE%` 解析 Downloads，禁止写死 `/Users/...` 或 `C:\Users\...`
+- **跨平台路径**：用 `$HOME` / `%USERPROFILE%` / `%APPDATA%` 解析，禁止写死 `/Users/...` 或 `C:\Users\...` 进 SKILL.md
 - **中英 commit**：提测与 commit 章节必填（文档补充若无新 commit 需求可保留原文），便于直接使用
