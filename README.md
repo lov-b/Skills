@@ -32,9 +32,19 @@ Skills/
 
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
+| **auto-conclusion** | [`auto-conclusion/`](auto-conclusion/) | 对 bug/需求开发做完整性总结并写入本地文档（多轮对话检索、提测变更、git commit） | 「总结这个对话中解决的bug」「总结刚刚完成的需求」「总结xx需求」；或 @ 选中该 skill |
 | **bugfix** | [`bugfix/`](bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`manage-skills/`](manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 | **one-time-ask** | [`one-time-ask/`](one-time-ask/) | 不打断任务：所有决策用 AskQuestion 弹框，同轮继续执行 | `/one-time-ask`；或 @ 选中该 skill |
+
+### auto-conclusion
+
+对 bug 修复或需求开发做完整性总结：检索相关历史对话 → 结构化文档 → 写入本地。主要能力：
+
+1. **多轮检索** — 收容与目标相关的分析/方案/问题/验证，排除无关穿插
+2. **结构化文档** — 需求、思路、问题、方案、流程、经验、提测变更、双语 git commit
+3. **灵活落盘** — 对话指定路径、安装时配置默认目录、或确认后写入系统下载文件夹
+4. **命名规范** — `feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`
 
 ### bugfix
 
