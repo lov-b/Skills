@@ -341,14 +341,41 @@ if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 2. 确认保存文件位于该仓库工作树内（或明确可接受的子路径）；否则**跳过**推送并说明原因（不回滚已写入的文件）
 3. 在该仓库内：
    - `git add <相对仓库根的文件路径>`
-   - `git commit`：优先使用文档 §9 的 commit message（取中英任一行或双语 body）；否则 `docs(conclusion): archive {slug}`
+   - `git commit`：message **必须**按下方「文档仓 commit message 规范」，禁止只贴文档 §9 或只写文件名
 4. `git push`：推送到当前分支上游；无上游时尝试设置跟踪或报告需用户指定 remote/branch（不 force push）
 5. **超时 / 网络 / 认证 / non-fast-forward 等失败**：
    - **不回滚**本地 commit 与已写入文件
    - 在对话结果中**明确说明 push 失败原因**（如 timeout、could not resolve host、auth failed、rejected non-fast-forward）
-6. 成功则回报：本地 commit hash、远程、分支
+6. 成功则回报：本地 commit hash、远程、分支；并回显实际使用的 commit message
 
-**输出**：push 成功 / 跳过（原因）/ 失败（原因）；本地 commit 是否已完成。
+#### 文档仓 commit message 规范（Phase 4b 强制）
+
+不只是写当前文档的内容，还要写清楚是新增需求开发文档，然后再写新增文档的内容。
+
+| 场景 | Subject 要求 |
+|------|----------------|
+| 新建总结 | 明确写出「新增需求开发文档」或 `docs(conclusion): add ...` |
+| 文档补充 | 明确写出「补充需求开发文档」或 `docs(conclusion): update ...` |
+
+推荐格式：
+
+```
+docs(conclusion): 新增需求开发文档 — {一句话主题}
+
+新增需求开发文档：{文件名}
+
+{文档主要内容摘要：需求要点 / 关键改动 / 提测要点}
+{可选：附文档 §9 中英 commit 原文各一行}
+```
+
+规则：
+
+- **第一句 / Subject 必须点明动作**：新增（或补充）需求开发文档，不能只有业务改动描述
+- **Body 先写动作与文件**，再写新增/补充文档的内容摘要（可来自 §1 / §8 / §9）
+- 文档补充模式用「补充」替代「新增」措辞
+- 推送前在对话中**展示将使用的完整 commit message**
+
+**输出**：push 成功 / 跳过（原因）/ 失败（原因）；本地 commit 是否已完成；所用 commit message。
 
 ---
 
@@ -420,6 +447,7 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **文档补充**：须先提取原文档需求，再按需求过滤当前对话后归位写入；默认写回原文件
 - **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入 `docsGitRepo`
 - **落盘可推送**：有 `docsGitRepo` 时 Phase 4 提供 commit+push；push 超时/失败须回报原因且不回滚本地 commit
+- **文档仓 commit**：push 前的 message 须先写明「新增/补充需求开发文档」，再写文档内容摘要，禁止只贴 §9
 - **分支模式 / 提交模式**：点名分支或 commit 时必须跑 Phase 2b；多项目分别整理 diff 后再做逻辑链路总结
 - **分支+对话合并 / 提交+对话合并**：必须跑 Phase 2c；改动事实以 git 为准，过程与原因以相关对话补充
 - **多仓库路径**：未给出其它项目路径时，先 AskQuestion/纯文本确认路径，禁止猜测仓库位置
