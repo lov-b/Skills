@@ -30,6 +30,7 @@ Skills/
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
 | **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
+| **optimize** | [`skills/optimize/`](skills/optimize/) | 结构化优化流程：现状分析 → 目标定义 → 方案设计 → 实施优化 → 效果验证 → 优化总结 | `optimize：` 开头；说「优化」「提升」「改进」「增强」「重构」；或 @ 选中该 skill |
 
 ### auto-conclusion
 
@@ -72,6 +73,22 @@ Skills/
 8. **修复总结** — 输出 Bug 内容、原因、方法、现状及 Git commit subject
 
 信息不完整或需人工决策时，优先用 **AskQuestion** 对话内弹框追问，不另开纯追问对话。
+
+### optimize
+
+按固定流程推进已有功能的优化，面向性能/质量/架构/安全/体验提升。主要能力：
+
+1. **上下文收集** — 查阅历史对话和相关文档，阅读待优化模块代码
+2. **现状分析** — 记录基线指标（延迟、准确率、覆盖率等），明确当前不足
+3. **目标定义** — 设定量化验收标准和回归底线
+4. **方案设计** — 列举并对比 1-3 个方案，推荐最优方案
+5. **确认关口** — 展示 diff 预览并获用户确认后再实施
+6. **实施优化** — 按方案改动，允许重构和新增（区别于 bugfix 的最小修复）
+7. **效果验证** — 对比优化前后指标，运行回归测试
+8. **优化总结** — 输出效果对比表、已知限制及 Git commit subject
+9. **总结归档** — 归档至 `docs/optimize/`，含「如何避免类似退化」
+
+信息不完整或需人工决策时，优先用 **AskQuestion** 对话内弹框确认。
 
 ### manage-skills
 
