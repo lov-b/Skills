@@ -77,7 +77,7 @@ Auto Conclusion Progress:
    - 含「bug」「修复」「缺陷」等 → `bugfix`
    - 含「需求」「功能」「feat」「开发」等 → `feat`
    - 同时涉及两者 → 以用户主述为准；可用 AskQuestion 确认
-2. 确定主题 slug（`xxx`）：一句话主题的英文或拼音短名，连字符分隔，去特殊字符，≤40 字符
+2. 确定主题 slug（`xxx`）：一句话主题的中文或英文短名（可中英混合），连字符分隔，去特殊字符，≤40 字符；优先选择中文用户一眼能理解的命名
 3. 明确检索范围提示词（需求名、模块、报错、接口、分支名、commit hash 等）
 4. **分支模式**判定：用户点名分支 / 「总结分支」「整理分支 diff」→ 进入分支模式
 5. **提交模式**判定：用户点名 commit / 「总结提交」→ 进入提交模式
@@ -474,6 +474,6 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **禁止编造**：对话或 diff 中未出现的方案、问题、变更不得写入
 - **先展示后落盘**：Phase 3 正文或补丁预览须在对话中可见，再经 Phase 4 确认后写入
 - **AskQuestion 优先**：路径确认、类型歧义、基线不明用对话内弹框，不另开纯追问
-- **命名 verbatim**：`feat-xxx-timestamp` / `bugfix-xxx-timestamp`（实现为 `feat-{slug}-{timestamp}.md`）
+- **命名 verbatim**：`feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`；slug 可用中文、英文或中英混合，优先让中文用户易于理解
 - **跨平台路径**：用 `$HOME` / `%USERPROFILE%` / `%APPDATA%` 解析，禁止写死 `/Users/...` 或 `C:\Users\...` 进 SKILL.md
 - **commit 中文描述**：§9 commit message 的 `<type>(<scope>):` 保持英文，描述用中文（必要类名等可英文）；提测与 commit 章节必填（文档补充若无新 commit 需求可保留原文），便于直接使用

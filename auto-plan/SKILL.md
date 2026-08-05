@@ -218,7 +218,7 @@ Auto Plan Progress:
 plan-{slug}-{timestamp}.md
 ```
 
-- `slug`：任务主题的英文或拼音短名，连字符分隔，≤40 字符
+- `slug`：任务主题的中文或英文短名（可中英混合），连字符分隔，≤40 字符；优先选择中文用户一眼能理解的命名
 - `timestamp`：`YYYYMMDD-HHmmss`（本地时区）
 
 #### 可选 commit + push
