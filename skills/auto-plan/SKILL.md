@@ -224,9 +224,11 @@ Auto Plan Progress:
 
 | 优先级 | 来源 | 行为 |
 |--------|------|------|
-| 1 | 用户在本轮对话中明确给出路径 | 使用该路径 |
-| 2 | 用户级配置 `config.json` 中的 `defaultSaveDir` | AskQuestion 确认是否使用该路径 |
-| 3 | 均未指定 | 使用系统「下载」文件夹，AskQuestion 确认 |
+| 1 | 用户在本轮对话中明确给出路径 | 使用该路径，直接写入 |
+| 2 | 用户级配置 `config.json` 中的 `defaultSaveDir` | 使用该路径，直接写入 |
+| 3 | 均未指定 | 使用系统「下载」文件夹，直接写入 |
+
+**落库即执行**：按优先级解析出保存路径后直接写入文件，无需 AskQuestion 确认写盘，方便用户在 IDE 中查看 git diff。
 
 **默认下载目录（跨平台，禁止写死绝对路径）**：
 
@@ -246,12 +248,13 @@ plan-{slug}-{timestamp}.md
 
 #### 可选 commit + push
 
-当用户级 `config.json` 中 `docsGitRepo` 有效时，AskQuestion 须提供「commit + push 到配置仓库」选项。
+文件写入完成后，若用户级 `config.json` 中 `docsGitRepo` 有效，弹 **AskQuestion** 仅确认 Git 操作（commit + push），不再确认写盘。
 
 流程：
 1. 确认保存文件位于 `docsGitRepo` 工作树内
 2. `git add` + `git commit`（message 按规范）
 3. `git push`（失败须报告原因，不回滚本地 commit）
+4. 无有效 `docsGitRepo` 时不展示 Git 选项，直接完成
 
 **commit message 规范**：
 

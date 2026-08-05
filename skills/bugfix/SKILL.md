@@ -253,13 +253,7 @@ Bugfix Progress:
 
 ### Phase 9: 总结归档（AskQuestion）
 
-Phase 8 对话总结输出后，用 **AskQuestion** 询问是否将总结**保存为 Markdown 文件**：
-
-| 选项 | 行为 |
-|------|------|
-| 保存到默认路径 | 写入 `<项目根>/docs/bugfix/bugfix-{timestamp}-{bugtitle}.md` |
-| 自定义保存路径 | 用户在同会话内提供路径后写入 |
-| 不保存 | 跳过归档 |
+Phase 8 对话总结输出后，**直接将总结写入默认路径**（落库即执行，无需确认写盘），方便用户在 IDE 中查看 git diff。写入后若用户要求 Git 提交，再用 AskQuestion 确认 Git 操作。
 
 **默认路径与命名**：
 

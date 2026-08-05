@@ -315,20 +315,16 @@ $DEFAULT_DIR = Join-Path $env:USERPROFILE "Downloads"
 if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 ```
 
-**AskQuestion 选项**（未指定路径、文档补充、或需确认默认路径时；`allow_multiple` 可按场景开启）：
+**落库即执行**：按优先级解析出保存路径后，**直接写入文件**（无需 AskQuestion 确认写盘），方便用户在 IDE 中查看 git diff。文件写入后，若有有效 `docsGitRepo`，弹 **AskQuestion** 仅确认 Git 操作：
 
 | 选项 | 行为 |
 |------|------|
-| 写回原文件（仅文档补充） | 覆盖写入用户点名的总结文件 |
-| 确认保存到默认/配置路径 | 写入已解析路径（新建总结） |
-| 自定义路径 / 另存为 | 请用户提供目录或文件路径后写入 |
-| **commit + push 到配置仓库** | 落盘后对 `docsGitRepo` 执行 add/commit/push（**仅当**用户级 `config.json` 中 `docsGitRepo` 有效时展示） |
-| 仅落盘不推送 | 只写文件，不提交推送 |
-| 取消保存 | 仅在对话中展示总结/补丁，不落盘 |
+| **commit + push 到配置仓库** | 对 `docsGitRepo` 执行 add/commit/push（**仅当**用户级 `config.json` 中 `docsGitRepo` 有效时展示） |
+| 仅落盘不推送 | 文件已写入，不执行 Git 操作 |
 
-- 无有效 `docsGitRepo` 时**不展示**「commit + push」选项
-- 「commit + push」可与路径类选项同时选中；选「取消」则整单取消
-- Codex / 无弹框时：用文本编号选项；用户回复前不写入文件、不 commit/push
+- 无有效 `docsGitRepo` 时**不展示** Git 选项，直接完成
+- 文档补充模式：直接写回原文件，不需确认写盘
+- Codex / 无弹框时：用文本编号选项；Git 操作在用户回复前不执行
 
 ---
 
