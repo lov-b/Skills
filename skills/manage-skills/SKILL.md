@@ -16,12 +16,13 @@ description: >-
 
 | 用途 | 路径 |
 |------|------|
-| Skills 仓库（源） | `<skills-repo>`：当前工作区、用户指定路径，或包含 `README.md` 与各 skill 子目录的 Git 根目录 |
+| Skills 仓库（源） | `<skills-repo>`：当前工作区、用户指定路径，或包含 `README.md` 与 `skills/`、`rules/` 子目录的 Git 根目录 |
 | 远程仓库（可选） | `<remote-url>`：通过 `git remote -v` 读取，不写死平台或账号 |
 | Codex 全局 Skills | `$CODEX_HOME/skills`；未设置 `$CODEX_HOME` 时使用 `$HOME/.codex/skills` |
 | Cursor 全局 Skills（macOS / Linux） | `$HOME/.cursor/skills` |
 | Cursor 全局 Skills（Windows） | `%USERPROFILE%\.cursor\skills` |
-| Skill 目录结构 | `<skills-repo>/<skill-name>/SKILL.md` |
+| Skill 目录结构 | `<skills-repo>/skills/<skill-name>/SKILL.md` |
+| Rule 目录结构 | `<skills-repo>/rules/<rule-name>/RULE.md` |
 | 仓库说明 | `<skills-repo>/README.md` |
 
 编写规范优先参考当前环境可用的 skill 创建指南（如 `skill-creator` / `create-skill`），不要依赖某台电脑上的固定内置目录。
@@ -136,12 +137,12 @@ Manage Skills Progress:
 
 1. 用户显式给出路径时，以该路径为准
 2. 未给出路径时，优先使用当前工作区
-3. 当前工作区不是 Skills 仓库时，查找最近的 Git 根目录，并确认其中存在 `README.md` 与 `<skill-name>/SKILL.md` 这类结构
+3. 当前工作区不是 Skills 仓库时，查找最近的 Git 根目录，并确认其中存在 `README.md` 与 `skills/<skill-name>/SKILL.md` 这类结构
 4. 仍无法定位时，用 **AskQuestion** 让用户选择或填写本地仓库路径
 
 定位仓库后：
 
-1. 列出 `<skill-name>/` 子目录及现有 `SKILL.md` 的 `name`、`description`
+1. 列出 `skills/<skill-name>/` 子目录及现有 `SKILL.md` 的 `name`、`description`
 2. 读取 `README.md` 中「已有 Skills」表格
 3. 可选读取 `git remote -v`，用于展示远程仓库信息；不要把远程地址写入 skill 内容
 4. 判断：
@@ -225,7 +226,7 @@ Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支�
 
 用户 Phase 4 选择非取消项，或原话已按「Codex 兼容与明示授权」明确授权写入后执行：
 
-1. 写入 `<skills-repo>/<skill-name>/SKILL.md`（及 `reference.md`、`scripts/` 等附属文件）
+1. 写入 `<skills-repo>/skills/<skill-name>/SKILL.md`（及 `reference.md`、`scripts/` 等附属文件）
 2. **新增 skill** 时，同步更新 `<skills-repo>/README.md`：
    - 在「已有 Skills」表格增加一行
    - 可选：增加简短说明小节
@@ -286,7 +287,7 @@ Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支�
 ## Skills 更新完成
 
 - **操作**：[新增 / 更新] `<skill-name>`
-- **落库路径**：`<skills-repo>/<skill-name>/`
+- **落库路径**：`<skills-repo>/skills/<skill-name>/`
 - **已执行**：[本地 commit / 远程 push / 全局同步 — 列出实际执行的项，或「无」]
 
 ### 改动总结

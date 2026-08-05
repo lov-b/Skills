@@ -1,30 +1,24 @@
-# Personal Skills
+# Personal Skills & Rules
 
-本目录用于存放**个人使用的 Agent Skills**，作为统一管理与备份位置。
-
-每个 skill 是一个独立子目录，内含必需的 `SKILL.md` 文件。仓库可以放在任意本地路径，例如：
-
-```
-<skills-repo>/
-├── README.md
-└── <skill-name>/
-    └── SKILL.md
-```
-
-其中 `<skills-repo>` 代表你 clone 或保存本仓库的实际路径，不要求固定为某台电脑上的指定目录。需要在本机生效时，将目标 skill 复制或链接到对应工具的全局 skills 目录。
-
----
+本目录用于存放**个人使用的 Agent Skills 和 Rules**，作为统一管理与备份位置。
 
 ## 目录结构
 
 ```
 Skills/
-├── README.md           # 本说明文件
-└── <skill-name>/
-    └── SKILL.md        # skill 主文件（必需）
+├── README.md
+├── skills/                  # Agent Skills（任务型技能）
+│   └── <skill-name>/
+│       └── SKILL.md
+└── rules/                   # Rules（全局规则/约束）
+    └── <rule-name>/
+        └── RULE.md
 ```
 
-新增 skill 时，在本目录下创建 `<skill-name>/SKILL.md`，并更新本文档的「已有 Skills」列表。
+- **Skills**：定义具体任务的执行流程（如 bug 修复、需求规划、开发总结等）
+- **Rules**：定义跨场景的全局约束（如交互规范、编码原则等）
+
+需要在本机生效时，将目标 skill 复制或链接到对应工具的全局 skills 目录；rules 配置为 User Rule。
 
 ---
 
@@ -32,11 +26,10 @@ Skills/
 
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
-| **auto-conclusion** | [`auto-conclusion/`](auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；对话合并；文档补充；可选落盘 commit+push） | 「总结…」「补充某份总结文档」；或 @ 选中该 skill |
-| **bugfix** | [`bugfix/`](bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
-| **manage-skills** | [`manage-skills/`](manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
-| **one-time-ask** | [`one-time-ask/`](one-time-ask/) | 不打断任务：所有决策用 AskQuestion 弹框，同轮继续执行 | `/one-time-ask`；或 @ 选中该 skill |
-| **auto-plan** | [`auto-plan/`](auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准三段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
+| **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；对话合并；文档补充；可选落盘 commit+push） | 「总结…」「补充某份总结文档」；或 @ 选中该 skill |
+| **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
+| **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
+| **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 
 ### auto-conclusion
 
@@ -52,6 +45,18 @@ Skills/
 8. **命名规范** — `feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`
 
 本机配置存于 `~/.config/auto-conclusion/config.json`（Windows：`%APPDATA%\auto-conclusion\config.json`），**不要**写进技能源码目录。
+
+### auto-plan
+
+根据用户提出的任务/需求，分析项目上下文并做结构化规划。主要能力：
+
+1. **需求收集** — 读取用户描述，不足时 AskQuestion 补齐关键信息
+2. **项目分析** — 扫描项目结构与现有代码，总结与任务相关的现状
+3. **规模判定** — 按小/中/大三档分类，给出判定理由
+4. **四段式计划** — ①需求全貌（目标、现状、完成标准）②阶段拆解（内容、依赖、工作量）③验收标准（大任务含测试用例）④执行进度
+5. **风险识别** — 主动标注技术风险、外部依赖、数据风险、时间风险
+6. **进度追踪** — 进度看板实时更新，跨对话续接无需重新检索
+7. **确认与调整** — 输出后用 AskQuestion 确认，支持调整或直接开始执行
 
 ### bugfix
 
@@ -80,37 +85,37 @@ Skills/
 6. **后续操作** — 可多选：本地 Git commit / 远程 push / 同步到全局 skills 目录
 7. **完成提醒** — 提示重启 Cursor 或重新打开项目后生效
 
-### one-time-ask
+---
 
-约束 Agent **交互方式**（可与 bugfix 等叠加）：
+## 已有 Rules
 
-1. **禁止中断式追问** — 不结束 turn 等待用户下一条消息
-2. **一律 AskQuestion** — 缺信息、选方案、要确认 → 对话内弹框
-3. **同轮续跑** — 用户在弹框中选择后，Agent 立即继续执行
-4. **上下文切换** — 无关任务插入时记录 checkpoint，处理完可 AskQuestion 是否回到原任务
+| Rule | 目录 | 用途 | 生效范围 |
+|------|------|------|----------|
+| **excellence** | [`rules/excellence/`](rules/excellence/) | 精益求精要求：AskQuestion 强制反馈循环、同轮续跑、上下文切换 checkpoint | User Rule，全局所有项目 |
 
-### auto-plan
+### excellence（精益求精）
 
-根据用户提出的任务/需求，分析项目上下文并做结构化规划。主要能力：
+跨场景的全局交互约束，合并了原 `one-time-ask` skill 的独有能力。主要规则：
 
-1. **需求收集** — 读取用户描述，不足时 AskQuestion 补齐关键信息
-2. **项目分析** — 扫描项目结构与现有代码，总结与任务相关的现状
-3. **规模判定** — 按小/中/大三档分类，给出判定理由
-4. **三段式计划** — ①需求全貌（目标、现状、完成标准）②阶段拆解（内容、依赖、工作量）③验收标准（大任务含测试用例）
-5. **风险识别** — 主动标注技术风险、外部依赖、数据风险、时间风险
-6. **确认与调整** — 输出后用 AskQuestion 确认，支持调整或直接开始执行
+1. **AskQuestion 强制** — 每次回复末尾必须调用 AskQuestion，选项含继续/调整/无操作
+2. **同轮续跑** — AskQuestion 返回后立即继续 workflow，不插入过渡语
+3. **上下文切换** — 任务中途插入无关请求时记录 checkpoint，处理完后可回到原任务
+4. **禁止空洞选项** — 选项必须具体可执行
+5. **违规识别** — 输出文字后直接结束（无 AskQuestion）视为违规
+
+配置方式：将 `RULE.md` 内容添加到 Cursor Settings → Rules → User Rules。
 
 ---
 
 ## 安装到全局
 
-选择要启用的 skill 后，将 `<skill-name>` 替换为实际目录名，例如 `manage-skills`、`bugfix` 或 `one-time-ask`。
+选择要启用的 skill 后，将 `<skill-name>` 替换为实际目录名，例如 `manage-skills`、`bugfix`。
 
 如果当前终端已经位于本仓库根目录，可以直接安装 `manage-skills`：
 
 ```bash
 mkdir -p "$HOME/.codex/skills"
-ln -sfn "$(pwd)/manage-skills" "$HOME/.codex/skills/manage-skills"
+ln -sfn "$(pwd)/skills/manage-skills" "$HOME/.codex/skills/manage-skills"
 ```
 
 ### Codex
@@ -119,14 +124,14 @@ ln -sfn "$(pwd)/manage-skills" "$HOME/.codex/skills/manage-skills"
 
 ```bash
 mkdir -p "$HOME/.codex/skills"
-ln -sfn "<skills-repo>/<skill-name>" "$HOME/.codex/skills/<skill-name>"
+ln -sfn "<skills-repo>/skills/<skill-name>" "$HOME/.codex/skills/<skill-name>"
 ```
 
 **macOS / Linux：复制（一次性）**
 
 ```bash
 mkdir -p "$HOME/.codex/skills"
-cp -R "<skills-repo>/<skill-name>" "$HOME/.codex/skills/<skill-name>"
+cp -R "<skills-repo>/skills/<skill-name>" "$HOME/.codex/skills/<skill-name>"
 ```
 
 ### Cursor
@@ -135,14 +140,14 @@ cp -R "<skills-repo>/<skill-name>" "$HOME/.codex/skills/<skill-name>"
 
 ```bash
 mkdir -p "$HOME/.cursor/skills"
-ln -sfn "<skills-repo>/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
+ln -sfn "<skills-repo>/skills/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
 ```
 
 **macOS / Linux：复制（一次性）**
 
 ```bash
 mkdir -p "$HOME/.cursor/skills"
-cp -R "<skills-repo>/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
+cp -R "<skills-repo>/skills/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
 ```
 
 **Windows PowerShell：推荐符号链接**
@@ -151,14 +156,14 @@ cp -R "<skills-repo>/<skill-name>" "$HOME/.cursor/skills/<skill-name>"
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.cursor\skills"
 New-Item -ItemType SymbolicLink `
   -Path "$env:USERPROFILE\.cursor\skills\<skill-name>" `
-  -Target "<skills-repo>\<skill-name>"
+  -Target "<skills-repo>\skills\<skill-name>"
 ```
 
 **Windows PowerShell：复制（一次性）**
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.cursor\skills"
-Copy-Item -Path "<skills-repo>\<skill-name>" -Destination "$env:USERPROFILE\.cursor\skills\<skill-name>" -Recurse -Force
+Copy-Item -Path "<skills-repo>\skills\<skill-name>" -Destination "$env:USERPROFILE\.cursor\skills\<skill-name>" -Recurse -Force
 ```
 
 同步后重启对应工具，或重新打开项目 / 新开对话即可使用。
@@ -170,3 +175,4 @@ Copy-Item -Path "<skills-repo>\<skill-name>" -Destination "$env:USERPROFILE\.cur
 - 不要将 skill 放入 Cursor 的 `skills-cursor` 内置目录，该目录由 Cursor 管理，勿手动修改。
 - 团队共享的 skill 建议放在各项目的 `.cursor/skills/` 并提交 Git；本目录适合个人跨项目通用 workflow。
 - 编辑 skill 后，若已同步到全局目录，需重新复制或确保符号链接指向最新内容。
+- Rules 需手动配置到 Cursor User Rules，不支持符号链接自动生效。
