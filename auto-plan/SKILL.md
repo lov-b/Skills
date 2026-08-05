@@ -29,6 +29,7 @@ Auto Plan Progress:
 - [ ] Step 3: 任务规模判定
 - [ ] Step 4: 输出三段式计划
 - [ ] Step 5: 确认与调整
+- [ ] Step 6: 文档保存与可选推送
 ```
 
 ---
@@ -175,17 +176,72 @@ Auto Plan Progress:
 输出计划后，用 **AskQuestion** 让用户确认。
 
 选项应包含：
-- 「计划符合预期，开始执行第一阶段」
+- 「计划符合预期，保存文档并开始执行第一阶段」
+- 「计划符合预期，不保存文档直接开始执行」
 - 「需要调整某个阶段的拆解」
 - 「需要补充或修改需求描述」
-- 「暂不执行，仅保存计划」
+- 「仅保存计划文档，暂不执行」
 
 **AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再在对话中用文本选项让用户确认；用户回复前不继续执行。
 
 用户确认后：
-- 选择执行 → 按阶段顺序开始开发（可结合 java-backend-pipeline 等其他 skill）
+- 选择含「保存」的选项 → 进入 Step 6 保存文档，再按需开始执行
+- 选择「不保存直接执行」→ 跳过 Step 6，按阶段顺序开始开发（可结合 java-backend-pipeline 等其他 skill）
 - 选择调整 → 根据反馈修改对应部分，重新展示调整后的计划
-- 选择保存 → 输出完整计划供后续使用
+
+---
+
+### Step 6: 文档保存与可选推送
+
+当用户在 Step 5 选择了包含「保存」的选项时执行。
+
+#### 保存路径解析
+
+按优先级解析保存目录：
+
+| 优先级 | 来源 | 行为 |
+|--------|------|------|
+| 1 | 用户在本轮对话中明确给出路径 | 使用该路径 |
+| 2 | 用户级配置 `config.json` 中的 `defaultSaveDir` | AskQuestion 确认是否使用该路径 |
+| 3 | 均未指定 | 使用系统「下载」文件夹，AskQuestion 确认 |
+
+**默认下载目录（跨平台，禁止写死绝对路径）**：
+
+| 系统 | 解析方式 |
+|------|----------|
+| macOS / Linux | `$HOME/Downloads`（不存在则回退 `$HOME`） |
+| Windows | `%USERPROFILE%\Downloads`（不存在则回退 `%USERPROFILE%`） |
+
+#### 文件命名
+
+```
+plan-{slug}-{timestamp}.md
+```
+
+- `slug`：任务主题的英文或拼音短名，连字符分隔，≤40 字符
+- `timestamp`：`YYYYMMDD-HHmmss`（本地时区）
+
+#### 可选 commit + push
+
+当用户级 `config.json` 中 `docsGitRepo` 有效时，AskQuestion 须提供「commit + push 到配置仓库」选项。
+
+流程：
+1. 确认保存文件位于 `docsGitRepo` 工作树内
+2. `git add` + `git commit`（message 按规范）
+3. `git push`（失败须报告原因，不回滚本地 commit）
+
+**commit message 规范**：
+
+```
+docs(plan): 新增任务计划文档 — {一句话主题}
+
+新增任务计划文档：{文件名}
+任务规模：{小/中/大}
+阶段数：{N} 个阶段
+{可选：关键阶段概要}
+```
+
+**AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项确认保存路径；用户回复前不写入文件。
 
 ---
 
@@ -202,6 +258,62 @@ Auto Plan Progress:
 
 ---
 
+## 安装时配置（默认保存地址与文档仓）
+
+**安装或首次同步到全局 skills 时**，Agent 须用 AskQuestion 询问默认文档保存目录：
+
+| 选项 | 行为 |
+|------|------|
+| 使用系统下载文件夹 | 将默认目录记为跨平台 Downloads 解析结果 |
+| 自定义目录 | 用户提供路径并写入配置 |
+| 跳过（每次再问） | 不写配置；每次 Step 6 走确认流程 |
+
+### 配置文件位置（强制：仓库外）
+
+配置写入**用户级**路径，**禁止**写入 skills 仓库或技能源码目录：
+
+| 系统 | 配置文件路径 |
+|------|----------------|
+| macOS / Linux | `$HOME/.config/auto-plan/config.json` |
+| Windows | `%APPDATA%\auto-plan\config.json` |
+
+目录不存在则创建。
+
+用户指定或确认**存储目录**后：
+
+1. 将 `defaultSaveDir` 与 `configuredAt` 写入用户级 `config.json`
+2. **探测 git 仓库**（保存目录本身或其父目录）：
+
+```bash
+git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
+```
+
+3. 若发现仓库根路径：
+   - 用 AskQuestion 确认：「是否将仓库 `<repo-root>` 配置到 config，便于计划落盘后 commit+push？」
+   - 用户同意 → 写入 `"docsGitRepo": "<repo-root>"`
+   - 用户拒绝 → `docsGitRepo` 置空
+4. 未发现 git 仓库 → 不询问，`docsGitRepo` 留空
+
+用户级 `config.json` 结构：
+
+```json
+{
+  "defaultSaveDir": "<user-chosen-or-downloads-path>",
+  "docsGitRepo": "",
+  "configuredAt": "<ISO-8601>"
+}
+```
+
+规则：
+- 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Step 6 优先提示该路径
+- 有有效 `docsGitRepo` → Step 6 **必须**提供「commit + push 到配置仓库」选项
+- 无配置或路径失效 → 回退 Downloads，AskQuestion 确认
+- **不要**把绝对路径写进 `SKILL.md` 或提交进 Skills 仓库；只写入用户级 `config.json`
+
+**AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项确认；用户回复前不写入配置。
+
+---
+
 ## 注意事项
 
 - **不凭假设规划**：项目现状必须通过实际代码分析得出，不凭经验猜测
@@ -210,3 +322,7 @@ Auto Plan Progress:
 - **幂等输出**：相同输入产出相同计划，不引入随机性
 - **AskQuestion 优先**：需用户决策时用弹框，不另开追问对话
 - **AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项让用户确认；用户回复前不继续执行
+- **配置在仓库外**：本机 `defaultSaveDir` / `docsGitRepo` 只写用户级 `config.json`，禁止写进技能源码目录
+- **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入用户级配置
+- **落盘可推送**：有 `docsGitRepo` 时 Step 6 提供 commit+push；push 失败须回报原因且不回滚本地 commit
+- **跨平台路径**：用 `$HOME` / `%USERPROFILE%` / `%APPDATA%` 解析，禁止写死绝对路径进 SKILL.md
