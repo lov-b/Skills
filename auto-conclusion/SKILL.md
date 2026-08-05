@@ -253,8 +253,7 @@ Auto Conclusion Progress:
 
 ## 9. Git Commit Message
 ```
-<type>(<scope>): <English description>
-<type>(<scope>): <中文描述>
+<type>(<scope>): <中文描述>（必要的类名/接口名等可保持英文）
 ```
 
 ## 附录 A. 分支与项目范围（补充）
@@ -278,7 +277,7 @@ Git / 合并模式下第 2 / 3 / 4 / 5 / 6 / 7 / 8 节**必须吸收** diff 与�
 **Git Commit 规范**：
 - conventional commits：`feat` 或 `fix`（与类型一致）
 - `scope` 为主要模块；多项目时可写主导仓或 `multi`
-- **中英双语各一行**，可直接用于 `git commit`
+- `<type>(<scope>):` 保持英文，冒号后描述用**中文**（必要的类名、接口名等可保持英文），可直接用于 `git commit`
 - 每条 50 字以内
 - 多仓库时可为每个主要项目各给一组 commit message
 
@@ -477,4 +476,4 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **AskQuestion 优先**：路径确认、类型歧义、基线不明用对话内弹框，不另开纯追问
 - **命名 verbatim**：`feat-xxx-timestamp` / `bugfix-xxx-timestamp`（实现为 `feat-{slug}-{timestamp}.md`）
 - **跨平台路径**：用 `$HOME` / `%USERPROFILE%` / `%APPDATA%` 解析，禁止写死 `/Users/...` 或 `C:\Users\...` 进 SKILL.md
-- **中英 commit**：提测与 commit 章节必填（文档补充若无新 commit 需求可保留原文），便于直接使用
+- **commit 中文描述**：§9 commit message 的 `<type>(<scope>):` 保持英文，描述用中文（必要类名等可英文）；提测与 commit 章节必填（文档补充若无新 commit 需求可保留原文），便于直接使用
