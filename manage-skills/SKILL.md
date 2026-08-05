@@ -269,8 +269,8 @@ Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支�
 
 **Commit Message 规范**（用户选中 Git 提交时 **必须** 遵守）：
 
-1. **Subject**（第一行）：conventional commits 格式，如 `feat(manage-skills): ...` / `fix(bugfix): ...`
-2. **Body**（空一行后）：2～4 句说明**改了什么、为什么改**，覆盖本次所有落库文件
+1. **Subject**（第一行）：`<type>(<scope>):` 保持英文（conventional commits），冒号后的描述用**中文**，如 `feat(manage-skills): 新增文档保存功能` / `fix(bugfix): 修复提交阶段缺少总结的问题`
+2. **Body**（空一行后）：用**中文**写 2～4 句，说明**改了什么、为什么改**，覆盖本次所有落库文件
 3. 在对话中**展示完整 commit message**（subject + body），再执行 commit
 4. push 成功后，在对话中告知推送的 **commit hash、分支、远程仓库**
 
@@ -337,4 +337,4 @@ Codex 环境中 AskQuestion / `request_user_input` 可能不可用，或不支�
 - **AskQuestion 优先**：用户决策用对话内弹框，不另开纯追问对话
 - **AskQuestion 降级必写**：使用 AskQuestion 的 skill（含本 skill）必须含「无法呼起时提示用户改用纯文本确认」条款
 - **改动总结必填**：Phase 7 必须输出改动总结，不可仅说「已更新」
-- **Commit 有内容**：Git 提交禁止空 message 或仅写「update」；subject 与 body 均需有意义
+- **Commit 有内容**：Git 提交禁止空 message 或仅写「update」；subject 的 `<type>(<scope>):` 保持英文，描述用中文；body 用中文；均需有意义
