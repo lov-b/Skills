@@ -225,19 +225,18 @@ Bugfix Progress:
 
 ### Git Commit Subject
 ```
-<type>(<scope>): <English description>
-<type>(<scope>): <中文描述>
+<type>(<scope>): <中文描述>（必要的类名/接口名等可保持英文）
 ```
 ```
 
 **Commit Subject 规范**：
 - 使用 conventional commits：`fix` 为主类型
 - `scope` 填主要影响模块（如 `backend`、`frontend`、`api`）
-- **同时给出英文与中文两个版本**，`type` 与 `scope` 保持一致，仅描述部分分别撰写
+- `<type>(<scope>):` 保持英文，冒号后描述用**中文**（必要的类名、接口名等可保持英文）
 - 每条 50 字以内
 - 示例：
-  - EN: `fix(backend): correct null check in knowledge retrieval`
-  - CN: `fix(backend): 修正知识检索中的空值检查`
+  - `fix(backend): 修正知识检索中的空值检查`
+  - `fix(api): 修复 UserProfileMoaService 返回值为 null 的问题`
 
 ### Git 提交与推送（用户要求时）
 
@@ -266,7 +265,7 @@ Phase 8 对话总结输出后，用 **AskQuestion** 询问是否将总结**保�
 
 - 目录：`<项目根>/docs/bugfix/`（不存在则创建）
 - 文件名：`bugfix-{YYYYMMDD-HHmmss}-{bugtitle}.md`
-- `bugtitle`：由 Bug 一句话摘要生成 slug（小写英文或拼音、连字符分隔、去特殊字符，≤40 字符）
+- `bugtitle`：由 Bug 一句话摘要生成 slug（中文或英文，可中英混合），连字符分隔，去特殊字符，≤40 字符；优先选择中文用户一眼能理解的命名
 
 **归档文件须包含以下章节**（从 Phase 8 总结扩展撰写）：
 
