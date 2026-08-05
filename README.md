@@ -36,6 +36,7 @@ Skills/
 | **bugfix** | [`bugfix/`](bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`manage-skills/`](manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 | **one-time-ask** | [`one-time-ask/`](one-time-ask/) | 不打断任务：所有决策用 AskQuestion 弹框，同轮继续执行 | `/one-time-ask`；或 @ 选中该 skill |
+| **auto-plan** | [`auto-plan/`](auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准三段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
 
 ### auto-conclusion
 
@@ -87,6 +88,17 @@ Skills/
 2. **一律 AskQuestion** — 缺信息、选方案、要确认 → 对话内弹框
 3. **同轮续跑** — 用户在弹框中选择后，Agent 立即继续执行
 4. **上下文切换** — 无关任务插入时记录 checkpoint，处理完可 AskQuestion 是否回到原任务
+
+### auto-plan
+
+根据用户提出的任务/需求，分析项目上下文并做结构化规划。主要能力：
+
+1. **需求收集** — 读取用户描述，不足时 AskQuestion 补齐关键信息
+2. **项目分析** — 扫描项目结构与现有代码，总结与任务相关的现状
+3. **规模判定** — 按小/中/大三档分类，给出判定理由
+4. **三段式计划** — ①需求全貌（目标、现状、完成标准）②阶段拆解（内容、依赖、工作量）③验收标准（大任务含测试用例）
+5. **风险识别** — 主动标注技术风险、外部依赖、数据风险、时间风险
+6. **确认与调整** — 输出后用 AskQuestion 确认，支持调整或直接开始执行
 
 ---
 
