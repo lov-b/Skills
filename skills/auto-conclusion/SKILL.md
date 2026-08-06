@@ -442,24 +442,35 @@ $DEFAULT_DIR = Join-Path $env:USERPROFILE "Downloads"
 if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 ```
 
-**落库即执行**：按优先级解析出保存路径后，**直接写入文件**（无需 AskQuestion 确认写盘），方便用户在 IDE 中查看 git diff。文件写入后，若有有效 `docsGitRepo`，弹 **AskQuestion** 仅确认 Git 操作：
+**落库即执行**：按优先级解析出保存路径后，**直接写入文件**（无需 AskQuestion 确认写盘），方便用户在 IDE 中查看 git diff。文件写入后，按以下优先级检测 Git 仓库并弹 **AskQuestion** 确认 Git 操作：
+
+**Git 仓库检测优先级**：
+
+| 优先级 | 检测方式 | 说明 |
+|--------|----------|------|
+| 1 | 用户级 `config.json` 中 `docsGitRepo` | 有配置则直接使用 |
+| 2 | 目标文件所在目录向上查找 git 仓库 | 在目标文件目录执行 `git rev-parse --show-toplevel`，成功即为有效仓库 |
+
+**检测到 Git 仓库时**，必须弹 AskQuestion：
 
 | 选项 | 行为 |
 |------|------|
-| **commit + push 到配置仓库** | 对 `docsGitRepo` 执行 add/commit/push（**仅当**用户级 `config.json` 中 `docsGitRepo` 有效时展示） |
+| **commit + push** | 对检测到的 git 仓库执行 add/commit/push |
 | 仅落盘不推送 | 文件已写入，不执行 Git 操作 |
 
-- 无有效 `docsGitRepo` 时**不展示** Git 选项，直接完成
-- 文档补充模式：直接写回原文件，不需确认写盘
+- **两种检测方式都不命中**时不展示 Git 选项，直接完成
+- 文档补充模式：直接写回原文件，不需确认写盘，但仍需检测 Git 并询问是否提交
 - Codex / 无弹框时：用文本编号选项；Git 操作在用户回复前不执行
 
 ---
 
-### Phase 4b: 可选 commit + push（配置了 docsGitRepo 时）
+### Phase 4b: 可选 commit + push（检测到 Git 仓库时）
 
-当用户在 Phase 4 选了「commit + push」、且用户级 `config.json` 含有效 `docsGitRepo` 时，在 Phase 5 写入成功后执行：
+当用户在 Phase 4 选了「commit + push」，且通过以下任一方式检测到有效 Git 仓库时，在 Phase 5 写入成功后执行：
+- 方式 A：用户级 `config.json` 含有效 `docsGitRepo`
+- 方式 B：目标文件所在目录 `git rev-parse --show-toplevel` 成功
 
-1. 解析仓库根：`docsGitRepo`（须为 `git rev-parse --show-toplevel` 可识别的路径）
+1. 解析仓库根：优先取 `docsGitRepo`；无配置时取目标文件目录 `git rev-parse --show-toplevel` 的结果
 2. 确认保存文件位于该仓库工作树内（或明确可接受的子路径）；否则**跳过**推送并说明原因（不回滚已写入的文件）
 3. 在该仓库内：
    - `git add <相对仓库根的文件路径>`
