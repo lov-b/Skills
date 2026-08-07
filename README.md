@@ -31,7 +31,7 @@ Skills/
 | **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 | **optimize** | [`skills/optimize/`](skills/optimize/) | 结构化优化流程：现状分析 → 目标定义 → 方案设计 → 实施优化 → 效果验证 → 优化总结 | `optimize：` 开头；说「优化」「提升」「改进」「增强」「重构」；或 @ 选中该 skill |
-| **anti-aigc-skills** | [`skills/anti-aigc-skills/`](skills/anti-aigc-skills/) | 对中文正式文档执行反 AIGC 检测优化：简写展开、指代词自然化、条件句补充、破折号替换、正式用词替换、冒号精简、并列结构打散等 9 个维度 | 「反AIGC优化」「AIGC检测优化」「降低AI检测率」「anti-aigc」「/anti-aigc」「去AI味」；或 @ 选中该 skill |
+| **anti-aigc** | [`skills/anti-aigc/`](skills/anti-aigc/) | 对中文正式文档执行反 AIGC 检测优化（含优化后 AIGC 检测评分）：简写展开、指代词自然化、条件句补充、破折号替换、正式用词替换、冒号精简、并列结构打散等 9 个维度 | 「反AIGC优化」「AIGC检测优化」「降低AI检测率」「anti-aigc」「/anti-aigc」「去AI味」；或 @ 选中该 skill |
 
 ### auto-conclusion
 
@@ -91,7 +91,7 @@ Skills/
 
 信息不完整或需人工决策时，优先用 **AskQuestion** 对话内弹框确认。
 
-### anti-aigc-skills
+### anti-aigc
 
 对中文正式文档（如软著操作手册、项目文档）执行系统性的反 AIGC 检测优化。主要能力：
 
@@ -104,8 +104,9 @@ Skills/
 7. **并列结构打散** — 变换高度规律的并列枚举句式
 8. **引号统一** — 将「」改为""
 9. **口语化与正式的平衡** — 避免过度口语或过度 AI 化表达
+10. **AIGC 检测评估** — 优化完成后逐段落评分（高/中/低风险），展示检测结果表格
 
-核心原则：内容不变只改表达，部分替换（60%~80%）而非全量，保留适度不一致以模拟真人写作。
+核心原则：内容不变只改表达，部分替换（60%~80%）而非全量，保留适度不一致以模拟真人写作。优化后自动进行检测评估，高风险段落可继续迭代优化。
 
 ### manage-skills
 
