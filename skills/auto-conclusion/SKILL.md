@@ -460,7 +460,7 @@ if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 
 - **两种检测方式都不命中**时不展示 Git 选项，直接完成
 - 文档补充模式：直接写回原文件，不需确认写盘，但仍需检测 Git 并询问是否 commit + push
-- 结构化提问工具不可用时：先提示「当前运行环境或会话模式未开放结构化提问工具，将改用纯文本选项确认。」，再用文本编号选项确认 Git 操作；Git 操作在用户回复前不执行
+- 结构化提问工具不可用时：先提示「当前运行环境或会话模式未开放结构化提问工具（如 AskQuestion），将改用纯文本选项确认。」，再用文本编号选项确认 Git 操作；Git 操作在用户回复前不执行
 
 ---
 
@@ -594,7 +594,7 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 
 ## 注意事项
 
-- **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：「当前运行环境或会话模式未开放结构化提问工具，将改用纯文本选项确认。」；再用编号选项确认类型、项目路径、Git 操作、是否配置 `docsGitRepo` 等需要用户决策的事项，禁止静默跳过。
+- **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：「当前运行环境或会话模式未开放结构化提问工具（如 AskQuestion），将改用纯文本选项确认。」；再用编号选项确认类型、项目路径、Git 操作、是否配置 `docsGitRepo` 等需要用户决策的事项，禁止静默跳过。
 - **配置在仓库外**：本机 `defaultSaveDir` / `docsGitRepo` 只写 `$HOME/.config/auto-conclusion/config.json`（Windows 见上表），禁止写进技能源码目录
 - **正文优先**：开发主内容（需求/改动/流程/提测/git comment）在前；分支/提交明细仅附录
 - **文档补充**：须先提取原文档需求，再按需求过滤当前对话后归位写入；默认写回原文件
