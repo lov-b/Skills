@@ -26,7 +26,7 @@ Skills/
 
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
-| **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；对话合并；文档补充；可选落盘 commit+push） | 「总结…」「补充某份总结文档」；或 @ 选中该 skill |
+| **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；对话合并；业务疑问智能归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「补充某份总结文档」；或 @ 选中该 skill |
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
 | **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
@@ -41,10 +41,11 @@ Skills/
 2. **分支 / 提交 Diff** — 单仓或多项目收集分支相对基线或指定 commit 的新增/修改，汇总后串成跨仓逻辑链路
 3. **对话×Git 合并** — 分支+对话 / 提交+对话：diff 写清改动，对话补充动机、踩坑与验证
 4. **正文优先** — 需求→思路→问题→方案→流程→经验→提测→git comment；分支/提交明细仅文末附录
-5. **文档补充** — 从已有 conclusion 提取需求，收容当前对话相关内容并归位写入（默写回原文件）
-6. **灵活落盘** — 对话指定路径、安装时配置默认目录；均未指定时解析系统下载文件夹并直接落盘
-7. **文档仓可选推送** — 安装时探测保存目录（或父目录）git 仓写入用户级配置；落盘后检测 Git 仓库并确认是否 commit+push，失败回报原因
-8. **命名规范** — `feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`
+5. **文档补充** — 从已有 conclusion 提取需求，收容当前对话相关内容并归位写入（默认写回原文件）
+6. **业务疑问智能归档** — 先整理并去重当前对话问题，再检索存档目录；匹配已有文档则归位补充，无匹配才新建业务 QA 文档
+7. **灵活落盘** — 对话指定路径、安装时配置默认目录；均未指定时解析系统下载文件夹并直接落盘
+8. **文档仓可选推送** — 安装时探测保存目录（或父目录）git 仓写入用户级配置；落盘后检测 Git 仓库并确认是否 commit+push，失败回报原因
+9. **命名规范** — `feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`
 
 本机配置存于 `~/.config/auto-conclusion/config.json`（Windows：`%APPDATA%\auto-conclusion\config.json`），**不要**写进技能源码目录。
 
