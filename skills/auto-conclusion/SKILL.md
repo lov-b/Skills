@@ -69,8 +69,8 @@ Auto Conclusion Progress:
 - [ ] Phase 2d: 已有文档补充（仅文档补充模式）
 - [ ] Phase 2e: 知识点提取与归档（仅知识点总结模式）
 - [ ] Phase 3: 结构化整理
-- [ ] Phase 4: 确认保存地址（可含 commit + push）
-- [ ] Phase 4b: 可选 commit + push（配置了 docsGitRepo 且用户选中时）
+- [ ] Phase 4: 解析保存地址并确认 Git 操作
+- [ ] Phase 4b: 可选 commit + push（检测到 Git 仓库且用户选中时）
 - [ ] Phase 5: 写入文档并回显
 ```
 
@@ -210,7 +210,7 @@ Auto Conclusion Progress:
    - 不删除文档已有有效结论，除非对话明确修正并注明
    - 新增段落标注来源（如「对话补充 · {YYYY-MM-DD}」）
    - 若原文件仍是旧版「Git 小节在前」版式，补充时可顺带按正文优先结构重排，**必须在预览中说明**
-6. 先在对话中展示**补丁预览**（将改哪些节、增删要点），再经 Phase 4 确认后写回
+6. 先在对话中展示**补丁预览**（将改哪些节、增删要点），再按 Phase 4 解析出的路径直接写回
 
 **输出**：需求锚点摘要 + 对话收容清单 + 章节归位草案（补丁预览）。
 
@@ -412,16 +412,16 @@ Git / 合并模式下第 2 / 3 / 4 / 5 / 6 / 7 / 8 节**必须吸收** diff 与�
 
 ---
 
-### Phase 4: 确认保存地址
+### Phase 4: 解析保存地址并确认 Git 操作
 
 按优先级解析保存目录/路径：
 
 | 优先级 | 来源 | 行为 |
 |--------|------|------|
-| 1 | **文档补充模式**：用户点名的原文件 | 默认写回原文件；AskQuestion/文本确认「写回原文件 / 另存为 / 取消」 |
-| 2 | 用户在本轮对话中明确给出路径 | 使用该路径；可在对话中复述确认 |
-| 3 | skill 安装配置中的默认路径（见「安装时配置」） | AskQuestion 确认是否用该配置路径 |
-| 4 | 均未指定 | 使用系统「下载」文件夹为默认目录，**必须**用 AskQuestion 请用户确认 |
+| 1 | **文档补充模式**：用户点名的原文件 | 默认直接写回原文件；仅用户明确要求另存时使用指定路径 |
+| 2 | 用户在本轮对话中明确给出路径 | 直接使用该路径并写入 |
+| 3 | skill 安装配置中的默认路径（见「安装时配置」） | 配置路径有效时直接使用并写入 |
+| 4 | 均未指定 | 解析系统「下载」文件夹并直接写入 |
 
 **默认下载目录（跨平台，禁止写死绝对路径）**：
 
@@ -442,7 +442,7 @@ $DEFAULT_DIR = Join-Path $env:USERPROFILE "Downloads"
 if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 ```
 
-**落库即执行**：按优先级解析出保存路径后，**直接写入文件**（无需 AskQuestion 确认写盘），方便用户在 IDE 中查看 git diff。文件写入后，按以下优先级检测 Git 仓库并弹 **AskQuestion** 确认 Git 操作：
+**落库即执行**：按优先级解析出保存路径后，**直接写入文件**（无需 AskQuestion 确认写盘），方便用户在 IDE 中查看 git diff。文件写入后，必须按以下优先级检测 Git 仓库；只要检测到有效仓库，就弹 **AskQuestion** 确认是否 commit + push：
 
 **Git 仓库检测优先级**：
 
@@ -459,8 +459,8 @@ if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 | 仅落盘不推送 | 文件已写入，不执行 Git 操作 |
 
 - **两种检测方式都不命中**时不展示 Git 选项，直接完成
-- 文档补充模式：直接写回原文件，不需确认写盘，但仍需检测 Git 并询问是否提交
-- Codex / 无弹框时：用文本编号选项；Git 操作在用户回复前不执行
+- 文档补充模式：直接写回原文件，不需确认写盘，但仍需检测 Git 并询问是否 commit + push
+- 结构化提问工具不可用时：先提示「当前运行环境或会话模式未开放结构化提问工具，将改用纯文本选项确认。」，再用文本编号选项确认 Git 操作；Git 操作在用户回复前不执行
 
 ---
 
@@ -535,7 +535,7 @@ docs(conclusion): 新增需求开发文档 — {一句话主题}
 |------|------|
 | 使用系统下载文件夹 | 将默认目录记为跨平台 Downloads 解析结果 |
 | 自定义目录 | 用户提供路径并写入配置 |
-| 跳过（每次再问） | 不写配置；每次 Phase 4 走确认流程 |
+| 跳过（不保存默认配置） | 不写配置；每次 Phase 4 按优先级解析保存路径 |
 
 ### 配置文件位置（强制：仓库外）
 
@@ -583,9 +583,9 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 ```
 
 规则：
-- 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Phase 4 优先提示该路径
+- 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Phase 4 直接使用该路径
 - 有有效 `docsGitRepo` → Phase 4 **必须**提供「commit + push 到配置仓库」选项
-- 无配置或路径失效 → 回退 Downloads，并 AskQuestion 确认
+- 无配置或路径失效 → 回退 Downloads 并直接写入
 - **不要**把机器特定绝对路径写进 `SKILL.md` 或提交进 Skills 仓库；只写入**用户级** `config.json`
 - Skills 仓库须 gitignore `auto-conclusion/config.json`
 - push 失败不得 silent 跳过；必须把失败原因写进对话结果
@@ -594,7 +594,7 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 
 ## 注意事项
 
-- **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：当前模型无法呼出 AskQuestion，需要纯文本确认；再用编号选项确认保存路径/类型/项目路径/是否配置 docsGitRepo 等，禁止静默跳过。
+- **AskQuestion 不可用时**：若无法呼起 AskQuestion，**必须在对话中提示**：「当前运行环境或会话模式未开放结构化提问工具，将改用纯文本选项确认。」；再用编号选项确认类型、项目路径、Git 操作、是否配置 `docsGitRepo` 等需要用户决策的事项，禁止静默跳过。
 - **配置在仓库外**：本机 `defaultSaveDir` / `docsGitRepo` 只写 `$HOME/.config/auto-conclusion/config.json`（Windows 见上表），禁止写进技能源码目录
 - **正文优先**：开发主内容（需求/改动/流程/提测/git comment）在前；分支/提交明细仅附录
 - **文档补充**：须先提取原文档需求，再按需求过滤当前对话后归位写入；默认写回原文件
@@ -606,8 +606,8 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **多仓库路径**：未给出其它项目路径时，先 AskQuestion/纯文本确认路径，禁止猜测仓库位置
 - **只收容相关内容**：多轮、跨对话检索；无关穿插与无关提交一律排除
 - **禁止编造**：对话或 diff 中未出现的方案、问题、变更不得写入
-- **先展示后落盘**：Phase 3 正文或补丁预览须在对话中可见，再经 Phase 4 确认后写入
-- **AskQuestion 优先**：路径确认、类型歧义、基线不明用对话内弹框，不另开纯追问
+- **先展示后落盘**：Phase 3 正文或补丁预览须在对话中可见，再按 Phase 4 解析出的路径直接写入；检测到 Git 仓库后再确认是否 commit + push
+- **AskQuestion 优先**：类型歧义、基线不明、项目路径缺失、Git 操作用对话内弹框，不另开纯追问
 - **命名 verbatim**：`feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`；slug 可用中文、英文或中英混合，优先让中文用户易于理解
 - **跨平台路径**：用 `$HOME` / `%USERPROFILE%` / `%APPDATA%` 解析，禁止写死 `/Users/...` 或 `C:\Users\...` 进 SKILL.md
 - **commit 中文描述**：§9 commit message 的 `<type>(<scope>):` 保持英文，描述用中文（必要类名等可英文）；提测与 commit 章节必填（文档补充若无新 commit 需求可保留原文），便于直接使用
