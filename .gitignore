@@ -1,2 +1,5 @@
 /.idea/
 auto-conclusion/config.json
+skills/auto-plan/config.json
+skills/auto-conclusion/config.json
+skills/bugfix/config.json

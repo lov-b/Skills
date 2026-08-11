@@ -28,7 +28,7 @@ Skills/
 |-------|------|------|----------|
 | **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；回答内容覆盖；业务疑问分类与知识点归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「补充某份总结文档」；或 @ 选中该 skill |
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
-| **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
+| **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结与归档，可选提交文档仓 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 | **optimize** | [`skills/optimize/`](skills/optimize/) | 结构化优化流程：现状分析 → 目标定义 → 方案设计 → 实施优化 → 效果验证 → 优化总结 | `optimize：` 开头；说「优化」「提升」「改进」「增强」「重构」；或 @ 选中该 skill |
 | **anti-aigc** | [`skills/anti-aigc/`](skills/anti-aigc/) | 对中文正式文档执行反 AIGC 检测优化（含优化后 AIGC 检测评分）：简写展开、指代词自然化、条件句补充、破折号替换、正式用词替换、冒号精简、并列结构打散等 9 个维度 | 「反AIGC优化」「AIGC检测优化」「降低AI检测率」「anti-aigc」「/anti-aigc」「去AI味」；或 @ 选中该 skill |
@@ -61,10 +61,14 @@ Skills/
 5. **风险识别** — 主动标注技术风险、外部依赖、数据风险、时间风险
 6. **进度追踪** — 进度看板实时更新，跨对话续接无需重新检索
 7. **确认与调整** — 输出后用 AskQuestion 确认，支持调整或直接开始执行
+8. **灵活落盘** — 支持用户指定目录、用户级默认目录与 Downloads 回退；肯定执行且未明确“不保存”时默认先保存计划
+9. **文档仓可选推送** — 落盘后优先读取配置仓，否则从目标目录向上探测 Git 仓库，再单独确认 commit+push
+
+本机配置存于 `~/.config/auto-plan/config.json`（Windows：`%APPDATA%/auto-plan/config.json`），**不要**写进技能源码目录。
 
 ### bugfix
 
-按 8 个阶段固定流程修复 Bug，避免跳过分析或过早下结论。主要能力：
+按 Phase 0～9 的完整流程修复 Bug，避免跳过分析或过早下结论。主要能力：
 
 1. **拆解分析** — 梳理现象、复现、期望、影响范围
 2. **问题研判** — 判断类型、优先级与修复范围
@@ -74,8 +78,11 @@ Skills/
 6. **环境刷新** — 按需重建/重启服务，并在对话中告知
 7. **回测验证** — 原 Bug 复测 + 回归，有证据才声称已修复
 8. **修复总结** — 输出 Bug 内容、原因、方法、现状及 Git commit subject
+9. **总结归档** — 按用户配置、项目目录或 Downloads 自动落盘；探测文档仓后单独确认归档 commit+push
 
 信息不完整或需人工决策时，优先用 **AskQuestion** 对话内弹框追问，不另开纯追问对话。
+
+本机配置存于 `~/.config/bugfix/config.json`（Windows：`%APPDATA%/bugfix/config.json`），**不要**写进技能源码目录。
 
 ### optimize
 

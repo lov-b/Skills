@@ -78,9 +78,9 @@ Auto Conclusion Progress:
 - [ ] Phase 2e: 知识点提取与归档（仅知识点总结模式）
 - [ ] Phase 2f: 业务疑问去重、文档匹配与归档（仅业务疑问归档模式）
 - [ ] Phase 3: 结构化整理
-- [ ] Phase 4: 解析保存地址并确认 Git 操作
-- [ ] Phase 4b: 可选 commit + push（检测到 Git 仓库且用户选中时）
-- [ ] Phase 5: 写入文档并回显
+- [ ] Phase 4: 解析保存地址
+- [ ] Phase 5: 写入文档、探测仓库并确认 Git 操作
+- [ ] Phase 5b: 可选 commit + push（检测到 Git 仓库且用户选中时）
 ```
 
 ---
@@ -491,7 +491,7 @@ Git / 合并模式下第 2 / 3 / 4 / 5 / 6 / 7 / 8 节**必须吸收** diff 与�
 
 ---
 
-### Phase 4: 解析保存地址并确认 Git 操作
+### Phase 4: 解析保存地址
 
 按优先级解析保存目录/路径：
 
@@ -523,48 +523,62 @@ $DEFAULT_DIR = Join-Path $env:USERPROFILE "Downloads"
 if (-not (Test-Path $DEFAULT_DIR)) { $DEFAULT_DIR = $env:USERPROFILE }
 ```
 
-**落库即执行**：按优先级解析出保存路径后，**直接写入文件**（无需 AskQuestion 确认写盘），方便用户在 IDE 中查看 git diff。文件写入后，必须按以下优先级检测 Git 仓库；只要检测到有效仓库，就弹 **AskQuestion** 确认是否 commit + push：
-
-**Git 仓库检测优先级**：
-
-| 优先级 | 检测方式 | 说明 |
-|--------|----------|------|
-| 1 | 用户级 `config.json` 中 `docsGitRepo` | 有配置则直接使用 |
-| 2 | 目标文件所在目录向上查找 git 仓库 | 在目标文件目录执行 `git rev-parse --show-toplevel`，成功即为有效仓库 |
-
-**检测到 Git 仓库时**，必须弹 AskQuestion：
-
-| 选项 | 行为 |
-|------|------|
-| **commit + push** | 对检测到的 git 仓库执行 add/commit/push |
-| 仅落盘不推送 | 文件已写入，不执行 Git 操作 |
-
-- **两种检测方式都不命中**时不展示 Git 选项，直接完成
-- 文档补充模式：直接写回原文件，不需确认写盘，但仍需检测 Git 并询问是否 commit + push
-- 结构化提问工具不可用时：先提示「当前运行环境或会话模式未开放结构化提问工具（如 AskQuestion），将改用纯文本选项确认。」，再用文本编号选项确认 Git 操作；Git 操作在用户回复前不执行
+**落库即执行**：解析出保存路径后立即进入 Phase 5 写入文件，无需 AskQuestion 确认写盘。禁止在文件写入成功前询问 Git 操作，也禁止把 Git 选择和代码修复、需求确认等无关决策合并。
 
 ---
 
-### Phase 4b: 可选 commit + push（检测到 Git 仓库时）
+### Phase 5: 写入文档并回显
 
-当用户在 Phase 4 选了「commit + push」，且通过以下任一方式检测到有效 Git 仓库时，在 Phase 5 写入成功后执行：
-- 方式 A：用户级 `config.json` 含有效 `docsGitRepo`
-- 方式 B：目标文件所在目录 `git rev-parse --show-toplevel` 成功
+1. **新建文件名**（verbatim 规则；文档补充写回原文件时不适用）：
+   - 需求：`feat-{slug}-{timestamp}.md`
+   - Bug：`bugfix-{slug}-{timestamp}.md`
+   - 业务疑问归档且无匹配文档：`feat-{slug}-业务逻辑QA-{timestamp}.md`
+   - `timestamp`：`YYYYMMDD-HHmmss`（本地时区）
+2. 目录不存在则创建
+3. 写入完整 Markdown（或文档补充后的全文）
+4. 写入成功后，按下方优先级探测文档 Git 仓库并取得 Git 操作选择
+5. 用户选择 commit+push 时执行 Phase 5b
+6. 对话中告知**完整绝对路径**、Git Commit Message（若有）、以及 commit/push 结果（含失败原因）
 
-1. 解析仓库根：优先取 `docsGitRepo`；无配置时取目标文件目录 `git rev-parse --show-toplevel` 的结果
-2. 确认保存文件位于该仓库工作树内（或明确可接受的子路径）；否则**跳过**推送并说明原因（不回滚已写入的文件）
-3. 在该仓库内：
-   - `git add <相对仓库根的文件路径>`
-   - `git commit`：message **必须**按下方「文档仓 commit message 规范」，禁止只贴文档 §9 或只写文件名
-4. `git push`：推送到当前分支上游；无上游时尝试设置跟踪或报告需用户指定 remote/branch（不 force push）
-5. **超时 / 网络 / 认证 / non-fast-forward 等失败**：
-   - **不回滚**本地 commit 与已写入文件
-   - 在对话结果中**明确说明 push 失败原因**（如 timeout、could not resolve host、auth failed、rejected non-fast-forward）
-6. 成功则回报：本地 commit hash、远程、分支；并回显实际使用的 commit message
+**输出**：文件路径 + 是否写入成功 +（可选）commit/push 结果。
 
-#### 文档仓 commit message 规范（Phase 4b 强制）
+#### 写入后的 Git 仓库检测
 
-不只是写当前文档的内容，还要写清楚是新增需求开发文档，然后再写新增文档的内容。
+| 优先级 | 检测方式 | 说明 |
+|--------|----------|------|
+| 1 | 用户级 `config.json` 中 `docsGitRepo` | 配置有效且目标文件位于其工作树内时使用 |
+| 2 | 目标文件所在目录向上查找 Git 仓库 | 在目标文件目录执行 `git rev-parse --show-toplevel`，成功即为有效仓库 |
+
+检测到仓库时，必须单独处理 Git 决策：
+
+| 选项 | 行为 |
+|------|------|
+| **commit + push** | 只暂存本次新增或更新的总结文档，执行 commit 后 push |
+| 仅落盘不推送 | 文件已写入，不执行 Git 操作 |
+
+- 用户原话已经明确要求「提交 / commit / 推送 / push」时，按动作粒度视为已授权：明确 push 包含必要的本地 commit；无需重复询问
+- 文档仓存在无关未提交改动时，先报告，但只 `git add` 本次目标文档；不得把无关文件带入提交，也不得因此静默跳过 Git 选项
+- 目标文档无法与其它改动安全隔离时，停止 Git 操作并报告原因，保留已写入文件
+- 两种检测方式都不命中时，明确说明「未检测到文档 Git 仓库」后完成
+- 文档补充模式同样必须在写回后执行仓库检测
+- 结构化提问工具不可用时，先提示「当前运行环境或会话模式未开放结构化提问工具（如 AskQuestion），将改用纯文本选项确认。」，再用文本编号只确认 Git 操作；文件已经写入，用户回复前不执行 commit/push
+
+---
+
+### Phase 5b: 可选 commit + push（检测到 Git 仓库时）
+
+当 Phase 5 已写入文档，且用户选择或已明确授权 commit+push 时执行：
+
+1. 解析仓库根：优先取有效且包含目标文件的 `docsGitRepo`；否则取目标文件目录 `git rev-parse --show-toplevel` 的结果
+2. 确认保存文件位于该仓库工作树内；否则跳过 Git 并说明原因，不回滚已写入文件
+3. 在该仓库内只暂存目标文档：
+   - `git add <相对仓库根的目标文件路径>`
+   - `git commit`：message 必须按下方「文档仓 commit message 规范」，禁止只贴文档 §9 或只写文件名
+4. `git push`：推送到当前分支上游；无上游时尝试设置跟踪或报告需用户指定 remote/branch，不 force push
+5. 超时、网络、认证或 non-fast-forward 等失败时，不回滚本地 commit 与已写入文件，并明确报告原因
+6. 成功则回报 commit hash、远程、分支及完整 commit message
+
+#### 文档仓 commit message 规范（Phase 5b 强制）
 
 | 场景 | Subject 要求 |
 |------|----------------|
@@ -582,30 +596,12 @@ docs(conclusion): 新增需求开发文档 — {一句话主题}
 {可选：附文档 §9 中英 commit 原文各一行}
 ```
 
-规则：
-
-- **第一句 / Subject 必须点明动作**：新增（或补充）需求开发文档，不能只有业务改动描述
-- **Body 先写动作与文件**，再写新增/补充文档的内容摘要（可来自 §1 / §8 / §9）
+- Subject 必须点明新增或补充需求开发文档，不能只有业务改动描述
+- Body 先写动作与文件，再写新增或补充文档的内容摘要
 - 文档补充模式用「补充」替代「新增」措辞
-- 推送前在对话中**展示将使用的完整 commit message**
+- commit 前在对话中展示完整 commit message
 
 **输出**：push 成功 / 跳过（原因）/ 失败（原因）；本地 commit 是否已完成；所用 commit message。
-
----
-
-### Phase 5: 写入文档并回显
-
-1. **新建文件名**（verbatim 规则；文档补充写回原文件时不适用）：
-   - 需求：`feat-{slug}-{timestamp}.md`
-   - Bug：`bugfix-{slug}-{timestamp}.md`
-   - 业务疑问归档且无匹配文档：`feat-{slug}-业务逻辑QA-{timestamp}.md`
-   - `timestamp`：`YYYYMMDD-HHmmss`（本地时区）
-2. 目录不存在则创建
-3. 写入完整 Markdown（或文档补充后的全文）
-4. 若 Phase 4 选了 commit+push → 执行 Phase 4b
-5. 对话中告知**完整绝对路径**、Git Commit Message（若有）、以及 commit/push 结果（含失败原因）
-
-**输出**：文件路径 + 是否写入成功 +（可选）commit/push 结果。
 
 ---
 
@@ -666,7 +662,7 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 
 规则：
 - 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Phase 4 直接使用该路径
-- 有有效 `docsGitRepo` → Phase 4 **必须**提供「commit + push 到配置仓库」选项
+- 有有效 `docsGitRepo` → Phase 5 写入成功后**必须**提供「commit + push 到配置仓库」选项
 - 无配置或路径失效 → 回退 Downloads 并直接写入
 - **不要**把机器特定绝对路径写进 `SKILL.md` 或提交进 Skills 仓库；只写入**用户级** `config.json`
 - Skills 仓库须 gitignore `auto-conclusion/config.json`
@@ -684,7 +680,8 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **业务问答先分类后写入**：不得把问题按对话顺序简单堆叠；按业务语义聚类并按理解顺序组织，分类结果须进入预览
 - **分类迁移保护旧内容**：已有业务 QA 默认不改写、不删减、不重新编号、不移动问答块；无法原地分类时增加分类导航，只有用户明确要求重构才迁移完整块
 - **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入用户级配置的 `docsGitRepo`
-- **落盘可推送**：有 `docsGitRepo` 时 Phase 4 提供 commit+push；push 超时/失败须回报原因且不回滚本地 commit
+- **落盘后必探测仓库**：Phase 5 写入成功后，优先使用有效 `docsGitRepo`，否则从目标文件目录向上探测；检测到仓库必须单独处理 commit+push，push 超时/失败须回报原因且不回滚本地 commit
+- **Git 决策独立**：禁止把文档 Git 选择和代码修复、需求确认等无关选项合并；工作树有无关改动时只暂存本次目标文档
 - **文档仓 commit**：push 前的 message 须先写明「新增/补充需求开发文档」，再写文档内容摘要，禁止只贴 §9
 - **分支模式 / 提交模式**：点名分支或 commit 时必须跑 Phase 2b；多项目分别整理 diff 后再做逻辑链路总结
 - **分支+对话合并 / 提交+对话合并**：必须跑 Phase 2c；改动事实以 git 为准，过程与原因以相关对话补充

@@ -249,6 +249,7 @@ Auto Plan Progress:
 - 选择含「保存」的选项 → 进入 Step 6 保存文档，再按需开始执行
 - 选择「不保存直接执行」→ 跳过 Step 6，按阶段顺序开始开发（可结合 java-backend-pipeline 等其他 skill）
 - 选择调整 → 根据反馈修改对应部分，重新展示调整后的计划
+- 用户只回复「继续」「开始执行」「按计划开发」等肯定指令，且没有明确说「不保存」时，默认按「保存文档并开始执行第一阶段」处理，避免计划未落盘便进入开发
 
 ---
 
@@ -284,15 +285,25 @@ plan-{slug}-{timestamp}.md
 - `slug`：任务主题的中文或英文短名（可中英混合），连字符分隔，≤40 字符；优先选择中文用户一眼能理解的命名
 - `timestamp`：`YYYYMMDD-HHmmss`（本地时区）
 
-#### 可选 commit + push
+#### 保存后的仓库检测与可选 commit + push
 
-文件写入完成后，若用户级 `config.json` 中 `docsGitRepo` 有效，弹 **AskQuestion** 仅确认 Git 操作（commit + push），不再确认写盘。
+文件写入完成后，必须按以下优先级检测文档仓库：
 
-流程：
-1. 确认保存文件位于 `docsGitRepo` 工作树内
-2. `git add` + `git commit`（message 按规范）
-3. `git push`（失败须报告原因，不回滚本地 commit）
-4. 无有效 `docsGitRepo` 时不展示 Git 选项，直接完成
+1. 用户级 `config.json` 中存在有效 `docsGitRepo`，且目标文件位于其工作树内 → 使用该仓库
+2. 配置缺失、失效或不包含目标文件 → 从目标文件目录执行 `git rev-parse --show-toplevel` 向上探测
+3. 两种方式均未命中 → 明确说明「未检测到文档 Git 仓库」，然后直接完成
+
+检测到仓库后，弹 **AskQuestion** 仅确认 Git 操作，不再确认写盘：
+
+| 选项 | 行为 |
+|------|------|
+| **commit + push** | 只暂存本次新增或更新的计划文件，执行 commit 后 push |
+| 仅落盘不推送 | 文件已写入，不执行 Git 操作 |
+
+- 用户原话已经明确要求「提交 / commit / 推送 / push」时，按动作粒度视为已授权：明确 push 包含必要的本地 commit；无需重复询问
+- 文档仓存在无关未提交改动时，先报告，但只 `git add` 本次计划文件；不得把无关文件带入提交，也不得因此静默跳过 Git 选项
+- 若目标文件无法与其它改动安全隔离，停止 Git 操作并报告原因，保留已经写入的文件
+- `git push` 失败须报告原因，不回滚本地 commit
 
 **commit message 规范**：
 
@@ -305,7 +316,7 @@ docs(plan): 新增任务计划文档 — {一句话主题}
 {可选：关键阶段概要}
 ```
 
-**AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项确认保存路径；用户回复前不写入文件。
+**AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项只确认 Git 操作；计划文件已经落盘，禁止因弹框不可用而跳过保存或仓库检测。用户回复前不执行 commit/push。
 
 ---
 
@@ -391,9 +402,10 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 ```
 
 规则：
-- 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Step 6 优先提示该路径
+- 有用户级 `config.json` 且 `defaultSaveDir` 有效 → Step 6 直接使用该路径并落盘
 - 有有效 `docsGitRepo` → Step 6 **必须**提供「commit + push 到配置仓库」选项
-- 无配置或路径失效 → 回退 Downloads，AskQuestion 确认
+- 无配置或路径失效 → 回退 Downloads 并直接落盘
+- 每次保存后仍须重新执行仓库检测；不得仅因配置里没有 `docsGitRepo` 就跳过目标目录的 Git 探测
 - **不要**把绝对路径写进 `SKILL.md` 或提交进 Skills 仓库；只写入用户级 `config.json`
 
 **AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项确认；用户回复前不写入配置。
@@ -410,7 +422,8 @@ git -C "$SAVE_DIR" rev-parse --show-toplevel 2>/dev/null
 - **AskQuestion 不可用时**：必须先提示「当前模型无法呼出 AskQuestion，需要纯文本确认」，再用文本选项让用户确认；用户回复前不继续执行
 - **配置在仓库外**：本机 `defaultSaveDir` / `docsGitRepo` 只写用户级 `config.json`，禁止写进技能源码目录
 - **安装探测 git**：指定保存目录后探测目录/父目录是否为 git 仓，经用户确认后写入用户级配置
-- **落盘可推送**：有 `docsGitRepo` 时 Step 6 提供 commit+push；push 失败须回报原因且不回滚本地 commit
+- **落盘后必探测仓库**：优先使用有效 `docsGitRepo`，否则从目标文件目录向上探测；检测到仓库必须提供 commit+push，push 失败须回报原因且不回滚本地 commit
+- **Git 决策独立**：计划确认负责是否保存/执行，文档落盘后的 Git 选择单独处理，禁止与其它需求确认合并
 - **跨平台路径**：用 `$HOME` / `%USERPROFILE%` / `%APPDATA%` 解析，禁止写死绝对路径进 SKILL.md
 - **进度即时更新**：Agent 每完成一个阶段须立即更新文档中的进度表格；跨对话续接时读取进度表格而非重新检索全文
 - **文档更新模式**：用户指定已有计划文件并要求补充/修改时，直接走 Step 1b，不重新做全量规划
