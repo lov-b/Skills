@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auto Cal"
+  short_description: "创建并维护算法题录，支持选题、检查答案与知识点沉淀"
+  default_prompt: "Use $auto-cal to create or update my algorithm practice log."

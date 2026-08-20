@@ -27,6 +27,7 @@ Skills/
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
 | **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；回答内容覆盖；业务疑问分类与知识点归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「补充某份总结文档」；或 @ 选中该 skill |
+| **auto-cal** | [`skills/auto-cal/`](skills/auto-cal/) | 创建并维护按日期组织的算法题录，支持 Hot 100 选题、答案检查、官方参考答案、结论和知识沉淀 | `/auto-cal`、`创建算法学习文档`、`新增题库`、`检查 ans`、`补充参考答案`；或 @ 选中该 skill |
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
 | **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结与归档，可选提交文档仓 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
@@ -49,6 +50,19 @@ Skills/
 10. **命名规范** — `feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`
 
 本机配置存于 `~/.config/auto-conclusion/config.json`（Windows：`%APPDATA%\auto-conclusion\config.json`），**不要**写进技能源码目录。
+
+### auto-cal
+
+面向 LeetCode 等算法学习场景，维护按真实日期组织、可跳转的长期刷题记录：
+
+1. 创建包含题目总览、日期章节和算法知识点章节的学习文档。
+2. 默认从 LeetCode Hot 100 随机选择 3 道 Medium 和 1 道 Hard，并兼顾考点差异与最近 20 天去重。
+3. 新增题目时只写完整题干，不泄露答案或解法提示。
+4. 答案检查只评判现有 `ans` 是否可行，不查询标准答案。
+5. 参考答案模式写入官方思路、实现与复杂度，并在 `conclusion` 中对比用户答案。
+6. 将可复用的算法规律和注意点沉淀到文档底部。
+
+---
 
 ### auto-plan
 
