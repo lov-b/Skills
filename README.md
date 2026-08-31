@@ -27,12 +27,27 @@ Skills/
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
 | **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；回答内容覆盖；业务疑问分类与知识点归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「补充某份总结文档」；或 @ 选中该 skill |
+| **auto-know** | [`skills/auto-know/`](skills/auto-know/) | 从网站或 AI 对话检索、校验并整理技术面试八股，支持语义去重、归位合并、纠错、索引维护和可选 Git 提交/推送 | 「整理八股」「收录八股」「检索八股」「根据对话整理八股」「维护八股知识库」；或 @ 选中该 skill |
 | **auto-cal** | [`skills/auto-cal/`](skills/auto-cal/) | 创建并维护按日期组织的算法题录，支持 Hot 100 选题、答案检查、官方参考答案、结论和知识沉淀 | `/auto-cal`、`创建算法学习文档`、`新增题库`、`检查 ans`、`补充参考答案`；或 @ 选中该 skill |
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
 | **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结与归档，可选提交文档仓 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
 | **manage-skills** | [`skills/manage-skills/`](skills/manage-skills/) | 新增/更新个人 Skills：需求拆解 → diff 预览 → 确认落库 → 可选 Git 提交与全局同步 | 「更新skills」「新增skills」；或 @ 选中该 skill |
 | **optimize** | [`skills/optimize/`](skills/optimize/) | 结构化优化流程：现状分析 → 目标定义 → 方案设计 → 实施优化 → 效果验证 → 优化总结 | `optimize：` 开头；说「优化」「提升」「改进」「增强」「重构」；或 @ 选中该 skill |
 | **anti-aigc** | [`skills/anti-aigc/`](skills/anti-aigc/) | 对中文正式文档执行反 AIGC 检测优化（含优化后 AIGC 检测评分）：简写展开、指代词自然化、条件句补充、破折号替换、正式用词替换、冒号精简、并列结构打散等 9 个维度 | 「反AIGC优化」「AIGC检测优化」「降低AI检测率」「anti-aigc」「/anti-aigc」「去AI味」；或 @ 选中该 skill |
+
+### auto-know
+
+用于持续维护技术面试八股知识库，而不是把检索结果机械追加到文档末尾。主要能力：
+
+1. **网站检索** — 支持指定 JavaGuide 等站点，也能用官方文档、规范和源码校验技术结论
+2. **对话提炼** — 同时扫描用户问题和 Agent 回答，提取原理、追问、误区、版本与适用边界
+3. **语义去重** — 写入前检索已有条目，逐题决定新增、合并、修订、冲突保留、迁移或跳过
+4. **结构化回答** — 按面试简答、原理展开、常见追问、易错点与来源组织，兼顾口述和深入复习
+5. **可追溯维护** — 使用稳定 ID、专题索引、访问日期、适用版本与修订记录
+6. **安全落库** — 先展示覆盖矩阵和补丁预览，再写入目标知识库并校验索引与重复项
+7. **可选 Git 操作** — 落盘后单独询问 commit+push、仅 commit 或仅落盘，只暂存本轮文件
+
+本机配置存于 `~/.config/auto-know/config.json`（Windows：`%APPDATA%\auto-know\config.json`），不要写进技能源码目录。
 
 ### auto-conclusion
 
