@@ -5,7 +5,7 @@
 ## 文件位置
 
 ```text
-<knowledge-root>/practice/八股练习记录.md
+<knowledge-root>/practice/know-record.md
 ```
 
 目录不存在则创建。该文件只服务出题冷却与作答回顾，不写入专题正文。
