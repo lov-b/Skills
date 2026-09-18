@@ -1,6 +1,7 @@
 {
   "defaultSaveDir": "",
   "knowledgeGitRepo": "",
+  "quizExcludeDays": 14,
   "preferredSources": [
     "https://javaguide.cn/",
     "https://interview.javaguide.cn/"
