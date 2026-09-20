@@ -46,9 +46,9 @@ Skills/
 5. **可追溯维护** — 使用稳定 ID、专题索引、适用版本与 Git 历史追踪
 6. **安全落库** — 先展示覆盖矩阵和补丁预览，再写入目标知识库并校验索引与重复项
 7. **可选 Git 操作** — 知识库正文整理落盘后单独询问 commit+push、仅 commit 或仅落盘，只暂存本轮文件
-8. **面试出题模式** — 从已保存知识库抽题（排除最近出过的），面试口吻提问；用户作答后压缩口述要点评分并指出差距；写入 `practice/know-record.md` 后自动 commit+push
+8. **面试出题模式** — 从已保存知识库抽题（排除最近出过的），面试口吻提问；用户作答后压缩口述要点评分并指出差距；写入 `practice/know-record.md` 后自动 commit+push；作答后可将某题标为「重点」，重点题冷却默认 7 天（普通题默认 14 天）
 
-本机配置存于 `~/.config/auto-know/config.json`（Windows：`%APPDATA%\auto-know\config.json`），不要写进技能源码目录。可选 `quizExcludeDays`（默认 14）控制出题冷却天数。
+本机配置存于 `~/.config/auto-know/config.json`（Windows：`%APPDATA%\auto-know\config.json`），不要写进技能源码目录。可选 `quizExcludeDays`（默认 14）、`quizFocusExcludeDays`（默认 7）控制普通题与重点题冷却天数。
 
 ### auto-conclusion
 

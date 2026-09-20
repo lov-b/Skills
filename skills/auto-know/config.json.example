@@ -2,6 +2,7 @@
   "defaultSaveDir": "",
   "knowledgeGitRepo": "",
   "quizExcludeDays": 14,
+  "quizFocusExcludeDays": 7,
   "preferredSources": [
     "https://javaguide.cn/",
     "https://interview.javaguide.cn/"
