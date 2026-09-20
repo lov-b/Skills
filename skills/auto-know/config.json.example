@@ -3,6 +3,16 @@
   "knowledgeGitRepo": "",
   "quizExcludeDays": 14,
   "quizFocusExcludeDays": 7,
+  "resumeQaDir": "",
+  "resumeFiles": {
+    "resume": "resume.md",
+    "questions": "interview-questions.md",
+    "qa": "QA.md",
+    "qaStar": "QA-star.md",
+    "talk": "Talk.md"
+  },
+  "resumeQuizExcludeDays": 14,
+  "resumeQuizFocusExcludeDays": 7,
   "preferredSources": [
     "https://javaguide.cn/",
     "https://interview.javaguide.cn/"

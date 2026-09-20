@@ -27,7 +27,7 @@ Skills/
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
 | **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；回答内容覆盖；业务疑问分类与知识点归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「补充某份总结文档」；或 @ 选中该 skill |
-| **auto-know** | [`skills/auto-know/`](skills/auto-know/) | 从网站或 AI 对话检索、校验并整理技术面试八股；支持语义去重、归位合并、纠错、索引维护、可选 Git；以及基于知识库的面试出题、评分与练习归档（评分后自动 commit+push） | 「整理八股」「收录八股」「检索八股」「根据对话整理八股」「维护八股知识库」「出一道八股」「八股面试」「八股练习」；或 @ 选中该 skill |
+| **auto-know** | [`skills/auto-know/`](skills/auto-know/) | 从网站或 AI 对话检索、校验并整理技术面试八股；支持语义去重、归位合并、纠错、索引维护、可选 Git；基于知识库的面试出题与练习归档；以及基于简历/经历题库的过往经历提问、评分与练习归档（评分后自动 commit+push） | 「整理八股」「收录八股」「检索八股」「根据对话整理八股」「维护八股知识库」「出一道八股」「八股面试」「八股练习」「出一道经历题」「简历提问」「经历练习」；或 @ 选中该 skill |
 | **auto-cal** | [`skills/auto-cal/`](skills/auto-cal/) | 创建并维护按日期组织的算法题录，支持 Hot 100 选题、答案检查、官方参考答案、结论和知识沉淀 | `/auto-cal`、`创建算法学习文档`、`新增题库`、`检查 ans`、`补充参考答案`；或 @ 选中该 skill |
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
 | **bugfix** | [`skills/bugfix/`](skills/bugfix/) | 结构化 Bug 修复：拆解分析 → 根因定位 → 方案实施 → 环境刷新 → 回测验证 → 修复总结与归档，可选提交文档仓 | `bugfix：` / `bugfix:` 开头；说「解决bug」「修复bug」；或 @ 选中该 skill |
@@ -47,8 +47,9 @@ Skills/
 6. **安全落库** — 先展示覆盖矩阵和补丁预览，再写入目标知识库并校验索引与重复项
 7. **可选 Git 操作** — 知识库正文整理落盘后单独询问 commit+push、仅 commit 或仅落盘，只暂存本轮文件
 8. **面试出题模式** — 从已保存知识库抽题（排除最近出过的），面试口吻提问；用户作答后压缩口述要点评分并指出差距；写入 `practice/know-record.md` 后自动 commit+push；作答后可将某题标为「重点」，重点题冷却默认 7 天（普通题默认 14 天）
+9. **过往经历提问模式** — 从 `resumeQaDir` 下的简历或 `interview-questions.md` 出题，对照 `Talk.md` / `QA-star.md` / `QA.md` 提炼口述要点并评分；写入 `practice/resume-record.md` 后自动 commit+push；冷却与重点标记规则与八股练习对齐
 
-本机配置存于 `~/.config/auto-know/config.json`（Windows：`%APPDATA%\auto-know\config.json`），不要写进技能源码目录。可选 `quizExcludeDays`（默认 14）、`quizFocusExcludeDays`（默认 7）控制普通题与重点题冷却天数。
+本机配置存于 `~/.config/auto-know/config.json`（Windows：`%APPDATA%\auto-know\config.json`），不要写进技能源码目录。可选 `quizExcludeDays`（默认 14）、`quizFocusExcludeDays`（默认 7）控制普通题与重点题冷却天数；经历模式另需配置 `resumeQaDir`（材料目录），可用 `resumeFiles` / `resumeQuizExcludeDays` / `resumeQuizFocusExcludeDays` 覆盖。
 
 ### auto-conclusion
 
