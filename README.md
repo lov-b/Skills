@@ -26,7 +26,7 @@ Skills/
 
 | Skill | 目录 | 用途 | 触发方式 |
 |-------|------|------|----------|
-| **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；回答内容覆盖；业务疑问分类与知识点归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「补充某份总结文档」；或 @ 选中该 skill |
+| **auto-conclusion** | [`skills/auto-conclusion/`](skills/auto-conclusion/) | 对 bug/需求、分支或 commit 做完整性总结（正文优先、Git 附录；回答内容覆盖；业务疑问分类与知识点归档；自学八股问答归档；文档补充；可选落盘 commit+push） | 「总结…」「归档未记录的业务疑问」「归档自学八股」「补充某份总结文档」；或 @ 选中该 skill |
 | **auto-know** | [`skills/auto-know/`](skills/auto-know/) | 从网站或 AI 对话检索、校验并整理技术面试八股；支持语义去重、归位合并、纠错、索引维护、可选 Git；基于知识库的面试出题与练习归档；以及基于简历/经历题库的过往经历提问、评分与练习归档（评分后自动 commit+push） | 「整理八股」「收录八股」「检索八股」「根据对话整理八股」「维护八股知识库」「出一道八股」「八股面试」「八股练习」「出一道经历题」「简历提问」「经历练习」；或 @ 选中该 skill |
 | **auto-cal** | [`skills/auto-cal/`](skills/auto-cal/) | 创建并维护按日期组织的算法题录，支持 Hot 100 选题、答案检查、官方参考答案、结论和知识沉淀 | `/auto-cal`、`创建算法学习文档`、`新增题库`、`检查 ans`、`补充参考答案`；或 @ 选中该 skill |
 | **auto-plan** | [`skills/auto-plan/`](skills/auto-plan/) | 任务/需求结构化规划：判定规模（小/中/大），输出需求全貌、阶段拆解、验收标准、执行进度四段式计划 | `/auto-plan`、「制定计划」「任务规划」「需求分析」「拆解任务」；或 @ 选中该 skill |
@@ -65,6 +65,7 @@ Skills/
 8. **灵活落盘** — 对话指定路径、安装时配置默认目录；均未指定时解析系统下载文件夹并直接落盘
 9. **文档仓可选推送** — 安装时探测保存目录（或父目录）git 仓写入用户级配置；落盘后检测 Git 仓库并确认是否 commit+push，失败回报原因
 10. **命名规范** — `feat-{slug}-{timestamp}.md` / `bugfix-{slug}-{timestamp}.md`
+11. **自学八股问答归档** — 明确归档后提取当前对话的问题与追问，保留完整问题，答案简洁且覆盖要点；优先去重补充已有自学文档，日常回答深度仍按用户要求。
 
 本机配置存于 `~/.config/auto-conclusion/config.json`（Windows：`%APPDATA%\auto-conclusion\config.json`），**不要**写进技能源码目录。
 
